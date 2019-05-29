@@ -11,7 +11,7 @@ var io = require('socket.io')(server);
 var port = process.env.PORT || 3000;
 
 server.listen(port, () => {
-  console.log('Server listening at port %d', port, "192.168.0.106");
+  console.log('Server listening at port %d', port);
 });
 
 // Routing
