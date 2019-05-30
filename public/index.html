@@ -1,43 +1,60 @@
 <html>
 
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> 
   <title>Augmented Reality Marker Detector</title>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.dom.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.dev.js"></script>
   <script src="https://unpkg.com/ml5@0.2.2/dist/ml5.min.js" type="text/javascript"></script>
 
-  <script type="text/javascript" src="./js/polyfill.js"></script> 
+  <script type="text/javascript" src="polyfill.js"></script> 
   
-  <script type="text/javascript" src="./js/cv.js"></script> 
-  <script type="text/javascript" src="./js/aruco.js"></script> 
+  <script type="text/javascript" src="cv.js"></script> 
+  <script type="text/javascript" src="aruco.js"></script> 
   
 
   <script>
     var video, canvas, context, imageData, detector, canvas1, poseNet, poses = [];
+    var socket = io.connect('http://localhost:3000/getusermedia.html');
+    // var socket3 = io.connect('http://localhost:3000/getusermedia.html');
     var button_value = false;
     var button_value_2 = false;
+    var button_value_3 = false;
+    var button_value_4 = false;
+    var socket1 = io();
+    var socket2 = io();
+    var socket3 = io();
     var user_Data = {};
+    var user_pose_Dat={};
     var user_Data_2 = {
         'fname' : 'Foo',
         'lname' : 'Bar'
     };
     var user_ip;
-
+    var poses_received={};
+    // var socket;
     function setup(){
-      canvas1 = createCanvas(640, 480);
+      alert(screen.width)
+      
+      // canvas1 = createCanvas(screen.width-50, 480);
+      canvas1 = createCanvas(640,480);
+      canvas1.parent('myContainer');
+      // canvas2 = createCanvas(640,80);
       video = createCapture(VIDEO);
-      video.size(width,height);
+      video.size(width, height);  
       canvas = canvas1.canvas;
+      
       context = canvas.getContext("2d");
-    
       canvas.width = parseInt(canvas.style.width);
       canvas.height = parseInt(canvas.style.height);
-      
+      // socket = socket.io.connect('http://localhost:3000')
       poseNet = ml5.poseNet(video, modelLoaded);
-      
+      fetchedPose=[];
       poseNet.on('pose', function(results) {
         poses = results;
+        // console.log(poses)
       });
       // Hide the video element, and just show the canvas
       video.hide();
@@ -45,6 +62,8 @@
       detector = new AR.Detector();
 
       requestAnimationFrame(tick);
+     
+      // socket = socket.io.connect('http://localhost:3000')
     }
     
     
@@ -86,7 +105,7 @@
     };
 }
 
-
+var dummy_ip = '10.128.88.2'
 getUserIP(function(ip){
     user_ip = ip.toString()
     alert("Got IP! :" + ip);
@@ -97,24 +116,83 @@ getUserIP(function(ip){
       console.log('Model Loaded!');
     }
 
+    // var socket1 = io();
+    // var socket2 = io();
+    // var socket3 = io();
     function tick(){
       requestAnimationFrame(tick);
-      image(video, 0, 0, width,height);
-      imageData = context.getImageData(0, 0,width,height);
+      image(video, 0, 0, width, height);
+      imageData = context.getImageData(0, 0, width, height);
         var markers = detector.detect(imageData);
         drawCorners(markers);
-        drawId(markers);  
+        drawId(markers);
         // drawKeypoints();
-      drawSkeleton();
-    }
+        drawSkeleton();
+        if(Object.getOwnPropertyNames(poses_received).length !=0)
+        {
+        drawKeypoints_fetched();
+        }
+        if(button_value_3)
+        {
+          // logPose();  
+          console.log('Emitting pose to server')
+          // user_pose_Dat[user_ip]=[poses[poses.length-1]]; 
+          user_pose_Dat['data']={'ip':user_ip,'pose':poses[poses.length-1]}
+          // console.log(user_pose_Dat[user_ip][0].pose.keypoints)
+          // socket1.emit('dummy3',user_pose_Dat[user_ip][0].pose.keypoints);
+          socket1.emit('dummy3',user_pose_Dat);
+          //  console.log(button_value_3)
+        }
+        if(button_value_4)
+        {
+          socket2.emit('dummy5',user_ip)
+         
+          socket2.on('dummy4', function(data)
+          {
+            
+          
+            // console.log(data['pose_data'])
+            
+            console.log('data fetched from server is::')
+            // console.log(data)
+            // if(data['pose_data']['ip']==dummy_ip)
+            // {
+            // poses_received = data['pose'][user_ip]
+            poses_received = data
+            console.log('results is::')
+            console.log(poses)
+            console.log('recieved')
+            console.log(poses_received['keypoints'][0])
+            // drawKeypoints_fetched();
+            // }
+          });
 
+          // socket2.on('dummy4',function(data)
+          // {
+          //  console.log('data fetched from server')
+          //  console.log(data) 
+          // });
+          // user_pose_Dat[user_ip]=[poses[poses.length-1]]; 
+          // console.log(user_pose_Dat[user_ip][0].pose.keypoints)
+          // socket1.emit('dummy3',user_pose_Dat[user_ip][0].pose.keypoints);
+          //  console.log(button_value_3)
+        }
+
+        
+    }
+    
+    function get_and_draw(data)
+    {
+          console.log('The server has a message for you: ')
+          // console.log(data)
+    }
     function snapshot(){
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       imageData = context.getImageData(0, 0, canvas.width, canvas.height);
     }
 
     // A function to draw ellipses over the detected keypoints
-    function drawKeypoints()  {
+    function drawKeypoints()Â  {
       // Loop through all the poses detected
       for (let i = 0; i < poses.length; i++) {
         // For each pose detected, loop through all the keypoints
@@ -131,6 +209,57 @@ getUserIP(function(ip){
         }
       }
     }
+
+  
+    function drawKeypoints_fetched()Â  {
+      // Loop through all the poses detected
+      // for (let i = 0; i < poses_received.length; i++) {
+        // For each pose detected, loop through all the keypoints
+        // let pose = poses_received[0].pose;
+        for (let j = 0; j < poses_received['keypoints'].length; j++) {
+          // A keypoint is an object describing a body part (like rightArm or leftShoulder)
+          let keypoint = poses_received['keypoints'][j];
+          // Only draw an ellipse is the pose probability is bigger than 0.2
+          if (keypoint.score > 0.2) {
+            fill(0, 255, 0);
+            noStroke();
+            ellipse(keypoint.position.x, keypoint.position.y, 10, 10);
+          }
+        }
+      // }
+    }
+
+    // function drawKeypoints_fetched()Â  {
+    //   // Loop through all the poses detected
+    //   // for (let i = 0; i < poses_received.length; i++) {
+    //     // For each pose detected, loop through all the keypoints
+    //     // let pose = poses_received[0].pose;
+    //     for (let j = 0; j < poses_received['keypoints'].length; j++) {
+    //       // A keypoint is an object describing a body part (like rightArm or leftShoulder)
+    //       let keypoint = poses_received['keypoints'][j];
+    //       // Only draw an ellipse is the pose probability is bigger than 0.2
+    //       if (keypoint.score > 0.2) {
+    //         console.log('keypoint score fits')
+    //         // fill(0, 255, 0);
+    //         // noStroke();
+    //         drawCoordinates_on_cavas(keypoint.position.x, keypoint.position.y);
+    //       }
+    //     }
+    //   // }
+    // }
+    var pointSize = 3;
+
+    function drawCoordinates_on_cavas(x,y){	
+    console.log('inside function')
+  	var ctx = document.getElementById("canvas").getContext("2d");
+
+
+  	ctx.fillStyle = "#ff2626"; // Red color
+
+    ctx.beginPath();
+    ctx.arc(x, y, pointSize, 0, Math.PI * 2, true);
+    ctx.fill();
+}
 
     // A function to draw the skeletons
     function drawSkeleton() {
@@ -155,7 +284,7 @@ getUserIP(function(ip){
       for (i = 0; i !== markers.length; ++ i){
         corners = markers[i].corners;
         
-        context.strokeStyle = "red";
+        context.strokeStyle = "red";  
         context.beginPath();
         
         for (j = 0; j !== corners.length; ++ j){
@@ -180,6 +309,7 @@ getUserIP(function(ip){
               //  alert(user_Data);
           }
           else{
+            console.log(pose_lenth)
             alert(marker_id+' pose detected')
             // user_Data[marker_id]=ip;
             // alert(user_Data);
@@ -203,8 +333,32 @@ getUserIP(function(ip){
         }
       }
 
+    function sendPose() 
+    {
+      // if(button_value_3==false)
+      // {
+        button_value_3 = !button_value_3
+      // }
+    }
 
-
+    function fetchPose() 
+    {
+      // if(button_value_3==false)
+      // {
+        button_value_4 = !button_value_4
+      // }
+    }
+    function logPose()
+    {
+      if(button_value_3)
+        {
+          // var socket = io();
+          // socket.emit('dummy3',user_Data);
+          // console.log('dfnasdhfWDFJbdf')
+          console.log(poses[poses.length-1])
+          
+        }
+    }
     function drawId(markers) {
       var corners, corner, x, y, i, j;
       
@@ -232,22 +386,42 @@ getUserIP(function(ip){
             // user_Data[ip]=markers[i].id
            
             maker_id = markers[i].id.toString();
-            user_Data[maker_id]=user_ip; 
+            user_Data[maker_id]=[user_ip,poses[poses.length-1]]; 
             str = JSON.stringify(user_Data);
             alert(str)
             Enrollment(markers[i].id,poses[poses.length-1]) //calling enrollment function using the marker caught
+            // console.log(poses[poses.length-1])
+            // console.log('Going to emit data using socket')
+            // var dummy = {x:'sdfasdf',y:'sdfsadfasd'}
+            var socket = io();
+            socket.emit('dummy',user_Data);
+            console.log('Trying to emit data using socket')
+          //   socket.emit('updatePlayer', function(){
+          //   console.log('testing');
+          // })
             button_value = false  // button is set to false once alert window pop ups
           }
           else{
             // user_Data[ip]=markers[i].id
             Enrollment(markers[i].id,0)
-            button_value = false
+            console.log('Going to emit data using socket')
+            var dummy = {x:'sdfasdf',y:'sdfsadfasd'}
+            socket.emit('dummy',user_Data);
+            console.log('Trying to emit data using socket')
+            // socket.emit('updatePlayer', function(){
+            // console.log('testing');
+            // })           
+           button_value = false
           }
         }
 
         if(button_value_2)
         {
           maker_id = markers[i].id.toString();
+          console.log('Emitting maker id')
+          var socket = io();
+          socket.emit('dummy2',maker_id);
+          console.log('Emitting maker id done')
           if(maker_id in user_Data)
           {
             alert('Key is present')
@@ -261,7 +435,6 @@ getUserIP(function(ip){
           }
         }
         
-        
       }
     }
 
@@ -272,7 +445,6 @@ getUserIP(function(ip){
   </script>
 
 </head>
-
 
 <body style="font-family: monospace; background: grey">
   <div id='myContainer'></div>
@@ -328,13 +500,16 @@ getUserIP(function(ip){
       cursor: pointer;} /* Black */
     </style>
   <button class="button" onclick="change()">Enroll</button>
-  <!-- <button class="button2" onclick="check()">Check</button> -->
+  <button class="button2" onclick="check()">Check</button>
   <button class="button3" onclick="sendPose()">Send Pose</button>
-  <!-- <button class="button4" onclick="fetchPose()">Fetch Pose</button> -->
-  <button class="button5" onclick="Restart()">Restart</button>  <center>
+  <button class="button4" onclick="fetchPose()">Fetch Pose</button>
+  <button class="button5" onclick="Restart()">Restart</button>
+  <center>
     <!-- <div style="margin: 10px;"><strong>-= Augmented Reality Marker Detector =-</strong></div> -->
     <video id="video" autoplay="true" style="display:none;"></video>
-    <!-- <canvas id="canvas" style="width:640px; height:480px;"></canvas> -->
+    <!-- <canvas id="canvas" style="width:640px; height:480px; background-color: black"></canvas> -->
+    <!-- <canvas id="canvas2" style="width:640px; height:480px;"></canvas> -->
+
     <!-- <div style="margin: 15px;"><strong>Powered by <a href="http://code.google.com/p/js-aruco/">js-aruco</a></strong></div> -->
   </center>
   <!-- <form>
