@@ -17,23 +17,20 @@
 
   <script>
     var video, canvas, context, imageData, detector, canvas1, poseNet, poses = [];
-    var socket = io.connect('http://localhost:3000/getusermedia.html');
+    var socket = io.connect('http://localhost:3000/index.html');
     // var socket3 = io.connect('http://localhost:3000/getusermedia.html');
-    var button_value = false;
-    var button_value_2 = false;
-    var button_value_3 = false;
-    var button_value_4 = false;
-    var socket1 = io();
-    var socket2 = io();
-    var socket3 = io();
-    var user_Data = {};
-    var user_pose_Dat={};
-    var user_Data_2 = {
-        'fname' : 'Foo',
-        'lname' : 'Bar'
-    };
-    var user_ip;
-    var poses_received={};
+    var button_value = false; //Enroll button. Pressed to enrol a marker. 
+    var button_value_2 = false; // Check button. On clicking, the main dataframe on the server is checked for registered aruco id
+    var button_value_3 = false;  // On press. Pose of person starts getting emitted to server.
+    var button_value_4 = false; //On press. IP of device is sent to socket and pose is fetched
+    var socket1 = io();  // pose is emitted using this socket
+    var socket2 = io(); // ip transmitted
+    // var socket3 = io();
+    var user_Data = {}; //contains marker id and corresponding pose value
+    var user_pose_Dat={}; //json used to emit ip,pose pair
+  
+    var user_ip; // ip of user stored in variable using getIP function
+    var poses_received={}; //pose recieved from server using button_value_4 and socket 2
     // var socket;
     function setup(){
       alert(screen.width)
@@ -53,7 +50,7 @@
       poseNet = ml5.poseNet(video, modelLoaded);
       fetchedPose=[];
       poseNet.on('pose', function(results) {
-        poses = results;
+        poses = results; //poses recieved  
         // console.log(poses)
       });
       // Hide the video element, and just show the canvas
@@ -123,14 +120,14 @@ getUserIP(function(ip){
       requestAnimationFrame(tick);
       image(video, 0, 0, width, height);
       imageData = context.getImageData(0, 0, width, height);
-        var markers = detector.detect(imageData);
-        drawCorners(markers);
-        drawId(markers);
-        // drawKeypoints();
-        drawSkeleton();
+        var markers = detector.detect(imageData); //markers detected at this step
+        drawCorners(markers); //marker corners drawn
+        drawId(markers); //marker id written
+        drawKeypoints(); //pose keypoints drawn
+        drawSkeleton(); //pose skeleton drawn
         if(Object.getOwnPropertyNames(poses_received).length !=0)
         {
-        drawKeypoints_fetched();
+        drawKeypoints_fetched();  //check if poses_recieved.length is not 0 on pressing fetch_button and draw them
         }
         if(button_value_3)
         {
@@ -167,15 +164,6 @@ getUserIP(function(ip){
             // }
           });
 
-          // socket2.on('dummy4',function(data)
-          // {
-          //  console.log('data fetched from server')
-          //  console.log(data) 
-          // });
-          // user_pose_Dat[user_ip]=[poses[poses.length-1]]; 
-          // console.log(user_pose_Dat[user_ip][0].pose.keypoints)
-          // socket1.emit('dummy3',user_pose_Dat[user_ip][0].pose.keypoints);
-          //  console.log(button_value_3)
         }
 
         
@@ -192,7 +180,7 @@ getUserIP(function(ip){
     }
 
     // A function to draw ellipses over the detected keypoints
-    function drawKeypoints()Â  {
+    function drawKeypoints() {
       // Loop through all the poses detected
       for (let i = 0; i < poses.length; i++) {
         // For each pose detected, loop through all the keypoints
@@ -211,7 +199,7 @@ getUserIP(function(ip){
     }
 
   
-    function drawKeypoints_fetched()Â  {
+    function drawKeypoints_fetched()  {
       // Loop through all the poses detected
       // for (let i = 0; i < poses_received.length; i++) {
         // For each pose detected, loop through all the keypoints
@@ -229,24 +217,6 @@ getUserIP(function(ip){
       // }
     }
 
-    // function drawKeypoints_fetched()Â  {
-    //   // Loop through all the poses detected
-    //   // for (let i = 0; i < poses_received.length; i++) {
-    //     // For each pose detected, loop through all the keypoints
-    //     // let pose = poses_received[0].pose;
-    //     for (let j = 0; j < poses_received['keypoints'].length; j++) {
-    //       // A keypoint is an object describing a body part (like rightArm or leftShoulder)
-    //       let keypoint = poses_received['keypoints'][j];
-    //       // Only draw an ellipse is the pose probability is bigger than 0.2
-    //       if (keypoint.score > 0.2) {
-    //         console.log('keypoint score fits')
-    //         // fill(0, 255, 0);
-    //         // noStroke();
-    //         drawCoordinates_on_cavas(keypoint.position.x, keypoint.position.y);
-    //       }
-    //     }
-    //   // }
-    // }
     var pointSize = 3;
 
     function drawCoordinates_on_cavas(x,y){	
@@ -301,6 +271,8 @@ getUserIP(function(ip){
         context.strokeRect(corners[0].x - 2, corners[0].y - 2, 4, 4);
       }
     }
+
+    //The following function is just used for debugging and notifying that marker has been enrolled
     function Enrollment(marker_id,pose_lenth) {
           if(pose_lenth==0)
           {   
@@ -317,7 +289,7 @@ getUserIP(function(ip){
                //document.write ("This is a warning message!");
             }
 
-    function change() 
+    function change()  //function used to change value of enroll button
       {
         if(!button_value)
         {
@@ -325,7 +297,7 @@ getUserIP(function(ip){
         }
       }
 
-    function check() 
+    function check()  //function used to change value of check button
       {
         if(!button_value_2)
         {
