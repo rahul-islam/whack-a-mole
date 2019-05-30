@@ -27,7 +27,7 @@
     function setup(){
       canvas1 = createCanvas(640, 480);
       video = createCapture(VIDEO);
-      video.size(width, height);
+      video.size(width,height);
       canvas = canvas1.canvas;
       context = canvas.getContext("2d");
     
@@ -99,12 +99,12 @@ getUserIP(function(ip){
 
     function tick(){
       requestAnimationFrame(tick);
-      image(video, 0, 0, width, height);
-      imageData = context.getImageData(0, 0, width, height);
+      image(video, 0, 0, width,height);
+      imageData = context.getImageData(0, 0,width,height);
         var markers = detector.detect(imageData);
         drawCorners(markers);
-        drawId(markers);
-        drawKeypoints();
+        drawId(markers);  
+        // drawKeypoints();
       drawSkeleton();
     }
 
@@ -273,14 +273,69 @@ getUserIP(function(ip){
 
 </head>
 
-<body style="font-family: monospace;">
-  <button onclick="change()">Enroll</button>
-  <button onclick="check()">Check</button>
-  <center>
-    <div style="margin: 10px;"><strong>-= Augmented Reality Marker Detector =-</strong></div>
+
+<body style="font-family: monospace; background: grey">
+  <div id='myContainer'></div>
+  <style>
+    .button {
+      background-color: #4CAF50; /* Green */
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
+    
+    .button2 {background-color: #008CBA;border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;} /* Blue */
+    .button3 {background-color: #f44336;border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;} /* Red */ 
+    .button4 {background-color: #e7e7e7; color: black;border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;} /* Gray */ 
+    .button5 {background-color: #555555;border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;} /* Black */
+    </style>
+  <button class="button" onclick="change()">Enroll</button>
+  <!-- <button class="button2" onclick="check()">Check</button> -->
+  <button class="button3" onclick="sendPose()">Send Pose</button>
+  <!-- <button class="button4" onclick="fetchPose()">Fetch Pose</button> -->
+  <button class="button5" onclick="Restart()">Restart</button>  <center>
+    <!-- <div style="margin: 10px;"><strong>-= Augmented Reality Marker Detector =-</strong></div> -->
     <video id="video" autoplay="true" style="display:none;"></video>
-    <canvas id="canvas" style="width:640px; height:480px;"></canvas>
-    <div style="margin: 15px;"><strong>Powered by <a href="http://code.google.com/p/js-aruco/">js-aruco</a></strong></div>
+    <!-- <canvas id="canvas" style="width:640px; height:480px;"></canvas> -->
+    <!-- <div style="margin: 15px;"><strong>Powered by <a href="http://code.google.com/p/js-aruco/">js-aruco</a></strong></div> -->
   </center>
   <!-- <form>
     <input id="EnrollButton" type = "button" value = "Enroll aruco tag" onclick = "change()" />
