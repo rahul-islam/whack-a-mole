@@ -45,6 +45,7 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('aruco joined', {
         arucoId: socket.arucoId,
     });
+    console.info(arucoId, 'registered')
   });
 
   // when the user disconnects.. perform this
