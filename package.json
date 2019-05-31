@@ -1,0 +1,45 @@
+{
+  "name": "hydra-graphql-gateway",
+  "version": "0.14.0",
+  "description": "gateway microservice",
+  "main": "src/server.js",
+  "repository": "git@gitlab.com:Lyra-egnify/hydra-graphql-api-gateway.git",
+  "author": "Rahul Islam <rahul@egnify.com>",
+  "license": "Egnify Technologies",
+  "private": true,
+  "engines": {
+    "node": ">=8.0",
+    "npm": "^5.6.0"
+  },
+  "dependencies": {
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "express": "^4.16.2",
+    "socket.io": "^2.2.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^8.2.2",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "chokidar": "^2.0.4",
+    "eslint": "^4.18.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.7.0",
+    "front-matter": "^3.0.1",
+    "glob": "^7.1.3",
+    "markdown-it": "^8.4.2",
+    "mkdirp": "^0.5.1",
+    "nodemon": "^1.15.1",
+    "rimraf": "^2.6.3"
+  },
+  "scripts": {
+    "start": "nodemon src/server.js --exec babel-node --presets es2015,stage-2",
+    "build": "babel-node tools/run build",
+    "lint-js": "eslint --ignore-path .gitignore --ignore-pattern \"!**/.*\" .",
+    "lint": "yarn run lint-js",
+    "fix-js": "yarn run lint --fix"
+  }
+}

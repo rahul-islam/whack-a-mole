@@ -1,0 +1,143 @@
+# @author: rahul
+image: node:8.9.0
+
+stages:
+  - build
+  - release
+  - review
+  - deploy
+  # - pre-production
+
+variables:
+  CONTAINER_IMAGE: ${CI_REGISTRY_IMAGE}/${CI_BUILD_REF_NAME}:${CI_BUILD_REF}
+  CONTAINER_IMAGE_LATEST: ${CI_REGISTRY_IMAGE}/${CI_BUILD_REF_NAME}:latest
+  CONTAINER_IMAGE_UNTAGGED: ${CI_REGISTRY_IMAGE}/${CI_BUILD_REF_NAME}
+  DOCKER_DRIVER: overlay2
+
+  KUBECONFIG: /etc/deploy/config
+  # STAGING_NAMESPACE: app-stage
+  # PRODUCTION_NAMESPACE: app-prod
+  #
+  # APP_PATH: /go/src/gitlab.example.com/librerio/libr_files
+  # POSTGRES_USER: gorma
+  # POSTGRES_DB: test-${CI_BUILD_REF}
+  # POSTGRES_PASSWORD: gorma
+
+# before_script:
+
+cache:
+  paths:
+    - node_modules/
+    - build/
+
+build:
+  stage: build
+  artifacts:
+    paths:
+      - node_modules/
+      - build/
+  script:
+    - npm install -g yarn
+    - yarn install
+    - yarn run build --release
+  only:
+    - development
+    - qa
+    - master
+
+release:
+  stage: release
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: "overlay2"
+    DOCKER_HOST: "tcp://localhost:2375"
+  before_script:
+    - docker info
+  script:
+    - docker login -u gitlab-ci-token -p ${CI_BUILD_TOKEN} ${CI_REGISTRY}
+    - docker build -t ${CONTAINER_IMAGE} .
+    - docker tag ${CONTAINER_IMAGE} ${CONTAINER_IMAGE_LATEST}
+    - docker push ${CONTAINER_IMAGE}
+    - docker push ${CONTAINER_IMAGE_LATEST}
+  only:
+    - development
+    - qa
+    - master
+
+    # - /^f-.*$/
+
+deploy-dev:
+  stage: deploy
+  image: arbaz7/gcloud-kubectl-helm:latest
+  services:
+    - docker:dind
+  before_script:
+    - mkdir -p /etc/deploy
+    - echo ${kube_config} > kube_config
+    - base64 -d kube_config > ${KUBECONFIG}
+    - echo ${gcloud_auth} > gcloud_auth.base64
+    - base64 -d gcloud_auth.base64 > gcloud_auth.json
+    # - kubectl config use-context gke_egnify-product_us-central1-a_hydra-federation
+    - helm init --client-only
+    - helm repo update
+    - gcloud auth activate-service-account --key-file=gcloud_auth.json
+    - gcloud container clusters get-credentials hydra-federation-dev --zone asia-south1-a --project egnify-product
+  script:
+    - export NAMESPACE=dev;
+    - export RELEASE_NAME=gateway-${NAMESPACE}-lms
+    - export DEPLOYS=$(helm ls | grep $RELEASE_NAME | wc -l)
+    - if [ ${DEPLOYS}  -eq 0 ]; then helm install --name=${RELEASE_NAME} charts --set image.tag=${CI_BUILD_REF} -f charts/values/${NAMESPACE}.yaml --namespace=${NAMESPACE}; else helm upgrade ${RELEASE_NAME} charts --set image.tag=${CI_BUILD_REF} -f charts/values/${NAMESPACE}.yaml --namespace=${NAMESPACE}; fi
+  environment:
+    name: dev
+  only:
+    - development
+
+# deploy-qa:
+#   stage: deploy
+#   image: arbaz7/gcloud-kubectl-helm:latest
+#   services:
+#     - docker:dind
+#   before_script:
+#     - mkdir -p /etc/deploy
+#     - echo ${kube_config} > kube_config
+#     - base64 -d kube_config > ${KUBECONFIG}
+#     - echo ${gcloud_auth} > gcloud_auth.base64
+#     - base64 -d gcloud_auth.base64 > gcloud_auth.json
+#     # - kubectl config use-context gke_egnify-product_us-central1-a_hydra-federation
+#     - helm init --client-only
+#     - gcloud auth activate-service-account --key-file=gcloud_auth.json
+#     - helm repo update
+#     - gcloud container clusters get-credentials hydra-federation-dev --zone asia-south1-a --project egnify-product
+#   script:
+#     - export NAMESPACE=qa;
+#     - export RELEASE_NAME=gateway-${NAMESPACE}-hydra
+#     - export DEPLOYS=$(helm ls | grep $RELEASE_NAME | wc -l)
+#     - if [ ${DEPLOYS}  -eq 0 ]; then helm install --name=${RELEASE_NAME} charts --set image.tag=${CI_BUILD_REF} -f charts/values/${NAMESPACE}.yaml --namespace=${NAMESPACE}; else helm upgrade ${RELEASE_NAME} charts --set image.tag=${CI_BUILD_REF} -f charts/values/${NAMESPACE}.yaml --namespace=${NAMESPACE}; fi
+#   environment:
+#     name: qa
+#     # url: https://qa.hydra.egnify.io
+#   only:
+#     - qa
+
+# deploy-uat:
+#   stage: deploy
+#   image: google/cloud-sdk:latest
+#   services:
+#     - docker:dind
+#   before_script:
+#     - mkdir -p /etc/deploy
+#     - echo ${GLOUD_AUTH_DEV} > gcloud_auth.base64
+#     - base64 -d gcloud_auth.base64 > gcloud_auth.json
+#     - gcloud auth activate-service-account --key-file=gcloud_auth.json
+#   script:
+#     - export NAMESPACE=uat;
+#     - cd build/
+#     - gsutil cp gs://hydra-config-dev/config/${CI_PROJECT_NAME}/app.yaml .
+#     - gcloud app deploy --project egnify-product --stop-previous-version --promote -q
+#   environment:
+#     name: uat
+#     # url: https://qa.hydra.egnify.io
+#   only:
+#     - uat
