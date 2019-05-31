@@ -1,10 +1,10 @@
 var video, canvas, context, imageData, detector, canvas1, poseNet, poses = [];
 var socket = io();
 // var socket3 = io.connect('http://localhost:3000/getusermedia.html');
-var button_value = false; //Enroll button. Pressed to enrol a marker. 
-var button_value_2 = false; // Check button. On clicking, the main dataframe on the server is checked for registered aruco id
-var button_value_3 = false;  // On press. Pose of person starts getting emitted to server.
-var button_value_4 = false; //On press. IP of device is sent to socket and pose is fetched
+var enrollButton = false; //Enroll button. Pressed to enrol a marker. 
+var checkButton = false; // Check button. On clicking, the main dataframe on the server is checked for registered aruco id
+var sendPoseButton = false;  // On press. Pose of person starts getting emitted to server.
+var fetchPoseButton = false; //On press. IP of device is sent to socket and pose is fetched
 var socket1 = io();  // pose is emitted using this socket
 var socket2 = io(); // ip transmitted
 // var socket3 = io();
@@ -12,7 +12,7 @@ var user_Data = {}; //contains marker id and corresponding pose value
 var user_pose_Dat = {}; //json used to emit ip,pose pair
 
 var user_ip; // ip of user stored in variable using getIP function
-var poses_received = {}; //pose recieved from server using button_value_4 and socket 2
+var poses_received = {}; //pose recieved from server using fetchPoseButton and socket 2
 // var socket;
 socket.emit('register aruco', 'A')
 socket.on('dataframe', (data) => {
@@ -124,7 +124,7 @@ function tick() {
     if (Object.getOwnPropertyNames(poses_received).length != 0) {
         drawKeypoints_fetched();  //check if poses_recieved.length is not 0 on pressing fetch_button and draw them
     }
-    if (button_value_3) {
+    if (sendPoseButton) {
         // logPose();  
         console.log('Emitting pose to server')
         // user_pose_Dat[user_ip]=[poses[poses.length-1]]; 
@@ -132,9 +132,9 @@ function tick() {
         // console.log(user_pose_Dat[user_ip][0].pose.keypoints)
         // socket1.emit('dummy3',user_pose_Dat[user_ip][0].pose.keypoints);
         socket1.emit('dummy3', user_pose_Dat);
-        //  console.log(button_value_3)
+        //  console.log(sendPoseButton)
     }
-    if (button_value_4) {
+    if (fetchPoseButton) {
         socket2.emit('dummy5', user_ip)
 
         socket2.on('dummy4', function (data) {
@@ -288,26 +288,26 @@ function change()  //function used to change value of enroll button
 
 function check()  //function used to change value of check button
 {
-    if (!button_value_2) {
-        button_value_2 = true
+    if (!checkButton) {
+        checkButton = true
     }
 }
 
 function sendPose() {
-    // if(button_value_3==false)
+    // if(sendPoseButton==false)
     // {
-    button_value_3 = !button_value_3
+    sendPoseButton = !sendPoseButton
     // }
 }
 
 function fetchPose() {
-    // if(button_value_3==false)
+    // if(sendPoseButton==false)
     // {
-    button_value_4 = !button_value_4
+    fetchPoseButton = !fetchPoseButton
     // }
 }
 function logPose() {
-    if (button_value_3) {
+    if (sendPoseButton) {
         // var socket = io();
         // socket.emit('dummy3',user_Data);
         // console.log('dfnasdhfWDFJbdf')
@@ -336,7 +336,7 @@ function drawId(markers) {
 
         context.strokeText(markers[i].id, x, y)
 
-        if (button_value) {
+        if (enrollButton) {
             if (poses.length != 0) {
                 // user_Data[ip]=markers[i].id
 
@@ -354,7 +354,7 @@ function drawId(markers) {
                 //   socket.emit('updatePlayer', function(){
                 //   console.log('testing');
                 // })
-                button_value = false  // button is set to false once alert window pop ups
+                enrollButton = false  // button is set to false once alert window pop ups
             }
             else {
                 // user_Data[ip]=markers[i].id
@@ -366,11 +366,11 @@ function drawId(markers) {
                 // socket.emit('updatePlayer', function(){
                 // console.log('testing');
                 // })           
-                button_value = false
+                enrollButton = false
             }
         }
 
-        if (button_value_2) {
+        if (checkButton) {
             maker_id = markers[i].id.toString();
             console.log('Emitting maker id')
             var socket = io();
@@ -379,11 +379,11 @@ function drawId(markers) {
             if (maker_id in user_Data) {
                 alert('Key is present')
                 alert('IP of user is::' + user_Data[maker_id].toString())
-                button_value_2 = false;
+                checkButton = false;
             }
             else {
                 alert('Key is not present')
-                button_value_2 = false;
+                checkButton = false;
             }
         }
 

@@ -1,4 +1,4 @@
-.button {
+.enrollButton {
   background-color: #4CAF50; /* Green */
   border: none;
   color: white;
@@ -11,7 +11,7 @@
   cursor: pointer;
 }
 
-.button2 {background-color: #008CBA;border: none;
+.checkButton {background-color: #008CBA;border: none;
   color: white;
   padding: 15px 32px;
   text-align: center;
@@ -20,7 +20,7 @@
   font-size: 16px;
   margin: 4px 2px;
   cursor: pointer;} /* Blue */
-.button3 {background-color: #f44336;border: none;
+.sendPoseButton {background-color: #f44336;border: none;
   color: white;
   padding: 15px 32px;
   text-align: center;
@@ -29,7 +29,7 @@
   font-size: 16px;
   margin: 4px 2px;
   cursor: pointer;} /* Red */ 
-.button4 {background-color: #e7e7e7; color: black;border: none;
+.fetchPoseButton {background-color: #e7e7e7; color: black;border: none;
   color: white;
   padding: 15px 32px;
   text-align: center;
@@ -38,7 +38,7 @@
   font-size: 16px;
   margin: 4px 2px;
   cursor: pointer;} /* Gray */ 
-.button5 {background-color: #555555;border: none;
+.RestartButton {background-color: #555555;border: none;
   color: white;
   padding: 15px 32px;
   text-align: center;
