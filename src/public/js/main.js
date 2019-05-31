@@ -19,10 +19,11 @@ socket.on('dataframe', (data) => {
     console.log(data);
 });
 
-const sendDataFrame = (poses) => {
+const sendDataFrame = (poses,marker_id) => {
     socket.emit('dataframe', {
         human: {
-            pose: poses
+            pose: poses,
+            id : marker_id
         }
     });
 }
@@ -47,7 +48,7 @@ function setup() {
     poseNet.on('pose', function (results) {
         poses = results; //poses recieved  
         // console.log(poses)
-        sendDataFrame(poses)
+        
     });
     // Hide the video element, and just show the canvas
     video.hide();
@@ -137,11 +138,12 @@ function tick() {
     if (sendPoseButton) {
         // logPose();  
         console.log('Emitting pose to server')
+        sendDataFrame(poses,marker_id)
         // user_pose_Dat[user_ip]=[poses[poses.length-1]]; 
-        user_pose_Dat['data'] = { 'ip': user_ip, 'pose': poses[poses.length - 1] }
-        // console.log(user_pose_Dat[user_ip][0].pose.keypoints)
-        // socket1.emit('dummy3',user_pose_Dat[user_ip][0].pose.keypoints);
-        socket1.emit('dummy3', user_pose_Dat);
+        // user_pose_Dat['data'] = { 'ip': user_ip, 'pose': poses[poses.length - 1] }
+        // // console.log(user_pose_Dat[user_ip][0].pose.keypoints)
+        // // socket1.emit('dummy3',user_pose_Dat[user_ip][0].pose.keypoints);
+        // socket1.emit('dummy3', user_pose_Dat);
         //  console.log(sendPoseButton)
     }
     if (fetchPoseButton) {
