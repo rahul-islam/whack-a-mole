@@ -14,7 +14,7 @@ var user_pose_Dat = {}; //json used to emit ip,pose pair
 var user_ip; // ip of user stored in variable using getIP function
 var poses_received = {}; //pose recieved from server using fetchPoseButton and socket 2
 // var socket;
-socket.emit('register aruco', 'A')
+// socket.emit('register aruco', 'A')
 socket.on('dataframe', (data) => {
     console.log(data);
 });
@@ -117,6 +117,16 @@ function tick() {
     image(video, 0, 0, width, height);
     imageData = context.getImageData(0, 0, width, height);
     var markers = detector.detect(imageData); //markers detected at this step
+    console.log(markers.length)
+    if(markers.length > 0)
+    {
+        if(enrollButton)
+        {
+            marker_id = markers[markers.length-1].id.toString();
+            // Enrollment(markers[i].id, 0)
+            socket.emit('register aruco',marker_id)
+        }
+    }
     drawCorners(markers); //marker corners drawn
     drawId(markers); //marker id written
     drawKeypoints(); //pose keypoints drawn
@@ -281,8 +291,8 @@ function Enrollment(marker_id, pose_lenth) {
 
 function change()  //function used to change value of enroll button
 {
-    if (!button_value) {
-        button_value = true
+    if (!enrollButton) {
+        enrollButton = true
     }
 }
 
@@ -336,39 +346,41 @@ function drawId(markers) {
 
         context.strokeText(markers[i].id, x, y)
 
-        if (enrollButton) {
-            if (poses.length != 0) {
-                // user_Data[ip]=markers[i].id
+        //ENROLLMENT SECTION WHICH HAS BEEN MOVED TO TICK FUNCTION
 
-                maker_id = markers[i].id.toString();
-                user_Data[maker_id] = [user_ip, poses[poses.length - 1]];
-                str = JSON.stringify(user_Data);
-                alert(str)
-                Enrollment(markers[i].id, poses[poses.length - 1]) //calling enrollment function using the marker caught
-                // console.log(poses[poses.length-1])
-                // console.log('Going to emit data using socket')
-                // var dummy = {x:'sdfasdf',y:'sdfsadfasd'}
-                var socket = io();
-                socket.emit('dummy', user_Data);
-                console.log('Trying to emit data using socket')
-                //   socket.emit('updatePlayer', function(){
-                //   console.log('testing');
-                // })
-                enrollButton = false  // button is set to false once alert window pop ups
-            }
-            else {
-                // user_Data[ip]=markers[i].id
-                Enrollment(markers[i].id, 0)
-                console.log('Going to emit data using socket')
-                var dummy = { x: 'sdfasdf', y: 'sdfsadfasd' }
-                socket.emit('dummy', user_Data);
-                console.log('Trying to emit data using socket')
-                // socket.emit('updatePlayer', function(){
-                // console.log('testing');
-                // })           
-                enrollButton = false
-            }
-        }
+        // if (enrollButton) {
+        //     if (poses.length != 0) {
+        //         // user_Data[ip]=markers[i].id
+
+        //         maker_id = markers[i].id.toString();
+        //         user_Data[maker_id] = [user_ip, poses[poses.length - 1]];
+        //         str = JSON.stringify(user_Data);
+        //         alert(str)
+        //         Enrollment(markers[i].id, poses[poses.length - 1]) //calling enrollment function using the marker caught
+        //         // console.log(poses[poses.length-1])
+        //         // console.log('Going to emit data using socket')
+        //         // var dummy = {x:'sdfasdf',y:'sdfsadfasd'}
+        //         var socket = io();
+        //         socket.emit('dummy', user_Data);
+        //         console.log('Trying to emit data using socket')
+        //         //   socket.emit('updatePlayer', function(){
+        //         //   console.log('testing');
+        //         // })
+        //         enrollButton = false  // button is set to false once alert window pop ups
+        //     }
+        //     else {
+        //         // user_Data[ip]=markers[i].id
+        //         Enrollment(markers[i].id, 0)
+        //         console.log('Going to emit data using socket')
+        //         var dummy = { x: 'sdfasdf', y: 'sdfsadfasd' }
+        //         socket.emit('dummy', user_Data);
+        //         console.log('Trying to emit data using socket')
+        //         // socket.emit('updatePlayer', function(){
+        //         // console.log('testing');
+        //         // })           
+        //         enrollButton = false
+        //     }
+        // }
 
         if (checkButton) {
             maker_id = markers[i].id.toString();
