@@ -13,10 +13,13 @@ var user_pose_Dat = {}; //json used to emit ip,pose pair
 
 var user_ip; // ip of user stored in variable using getIP function
 var poses_received = {}; //pose recieved from server using fetchPoseButton and socket 2
+var keypoints_fetched = {};
+var human_pose_fetched = {};
 // var socket;
 // socket.emit('register aruco', 'A')
 socket.on('dataframe', (data) => {
     console.log(data);
+    poses_received  = data
 });
 
 const sendDataFrame = (poses,marker_id) => {
@@ -118,7 +121,7 @@ function tick() {
     image(video, 0, 0, width, height);
     imageData = context.getImageData(0, 0, width, height);
     var markers = detector.detect(imageData); //markers detected at this step
-    console.log(markers.length)
+    // console.log(markers.length)
     if(markers.length > 0)
     {
         if(enrollButton)
@@ -127,17 +130,18 @@ function tick() {
             // Enrollment(markers[i].id, 0)
             socket.emit('register aruco',marker_id)
         }
-    }
+    }   
     drawCorners(markers); //marker corners drawn
     drawId(markers); //marker id written
     drawKeypoints(); //pose keypoints drawn
     drawSkeleton(); //pose skeleton drawn
-    if (Object.getOwnPropertyNames(poses_received).length != 0) {
+    if (Object.keys(keypoints_fetched).length != 0 && keypoints_fetched.constructor === Object != 0) {
+        console.log(keypoints_fetched.length)
         drawKeypoints_fetched();  //check if poses_recieved.length is not 0 on pressing fetch_button and draw them
     }
     if (sendPoseButton) {
         // logPose();  
-        console.log('Emitting pose to server')
+        // console.log('Emitting pose to server')
         sendDataFrame(poses,marker_id)
         // user_pose_Dat[user_ip]=[poses[poses.length-1]]; 
         // user_pose_Dat['data'] = { 'ip': user_ip, 'pose': poses[poses.length - 1] }
@@ -147,26 +151,37 @@ function tick() {
         //  console.log(sendPoseButton)
     }
     if (fetchPoseButton) {
-        socket2.emit('dummy5', user_ip)
+        // console.log('Fetching data frame from server')
+        // console.log(poses_received[marker_id])
+        // console.log('Pose point recieved is::')
+        console.log('Fetching pose from server')
+        human_pose_fetched = poses_received[marker_id]['human']['pose'] 
+        keypoints_fetched = human_pose_fetched[human_pose_fetched.length-1]['pose']
+        console.log(keypoints_fetched)
 
-        socket2.on('dummy4', function (data) {
+        // socket.on('dataframe', (data) => {
+        //     console.log('Data fetched from server is::::')
+        //     console.log(data);
+        //     // console.log(data[marker_id])
+        // });
 
 
-            // console.log(data['pose_data'])
 
-            console.log('data fetched from server is::')
-            // console.log(data)
-            // if(data['pose_data']['ip']==dummy_ip)
-            // {
-            // poses_received = data['pose'][user_ip]
-            poses_received = data
-            console.log('results is::')
-            console.log(poses)
-            console.log('recieved')
-            console.log(poses_received['keypoints'][0])
-            // drawKeypoints_fetched();
-            // }
-        });
+        // socket2.emit('dummy5', user_ip)
+
+        // socket2.on('dummy4', function (data) {
+
+
+        //     // console.log(data['pose_data'])
+
+        //     console.log('data fetched from server is::')
+        //     // console.log(data)
+        //     // if(data['pose_data']['ip']==dummy_ip)
+        //     // {
+        //     // poses_received = data['pose'][user_ip]
+        //     poses_received = data
+            
+        // // });
 
     }
 
@@ -207,9 +222,9 @@ function drawKeypoints_fetched() {
     // for (let i = 0; i < poses_received.length; i++) {
     // For each pose detected, loop through all the keypoints
     // let pose = poses_received[0].pose;
-    for (let j = 0; j < poses_received['keypoints'].length; j++) {
+    for (let j = 0; j < keypoints_fetched['keypoints'].length; j++) {
         // A keypoint is an object describing a body part (like rightArm or leftShoulder)
-        let keypoint = poses_received['keypoints'][j];
+        let keypoint = keypoints_fetched['keypoints'][j];
         // Only draw an ellipse is the pose probability is bigger than 0.2
         if (keypoint.score > 0.2) {
             fill(0, 255, 0);
