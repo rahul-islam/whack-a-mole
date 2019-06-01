@@ -1,0 +1,39 @@
+{
+    "A": {
+        "human": {
+            "poses": []
+        },
+        "aruco": [
+            {
+                "pose": {},
+                "arucoId": "C"
+            },
+            {
+                "pose": {},
+                "arucoId": "D"
+            }
+        ]
+    },
+    "B": {
+        "human": {
+            "poses": []
+        },
+        "aruco": [
+            {
+                "pose": {},
+                "arucoId": "A"
+            }
+        ]
+    },
+    "C": {
+        "human": {
+            "poses": []
+        },
+        "aruco": [
+            {
+                "pose": {},
+                "arucoId": "A"
+            }
+        ]
+    }
+}
