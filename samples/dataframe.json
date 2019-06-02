@@ -1,22 +1,28 @@
 {
     "A": {
         "human": {
-            "poses": []
+            "pose":[
+                 {
+                    "score":0.4,
+                    "keypoints":[]
+                }
+            ]
         },
         "aruco": [
             {
                 "pose": {},
                 "arucoId": "C"
-            },
-            {
-                "pose": {},
-                "arucoId": "D"
             }
         ]
     },
     "B": {
         "human": {
-            "poses": []
+            "pose": [
+                {
+                    "score":0.5,
+                    "keypoints":[]
+                }
+            ]
         },
         "aruco": [
             {
@@ -27,7 +33,12 @@
     },
     "C": {
         "human": {
-            "poses": []
+            "pose": [
+                {
+                    "score":0.3,
+                    "keypoints":[]
+                }
+                ]
         },
         "aruco": [
             {

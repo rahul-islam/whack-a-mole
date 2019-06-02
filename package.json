@@ -12,6 +12,7 @@
     "npm": "^5.6.0"
   },
   "dependencies": {
+    "babel-eslint": "^8.2.6",
     "babel-plugin-transform-runtime": "^6.23.0",
     "express": "^4.16.2",
     "socket.io": "^2.2.0"
