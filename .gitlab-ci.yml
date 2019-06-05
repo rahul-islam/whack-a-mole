@@ -1,5 +1,7 @@
 # @author: rahul
+# wifi password: jaykol12390
 image: node:8.9.0
+
 
 stages:
   - build
