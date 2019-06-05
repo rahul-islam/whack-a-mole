@@ -686,7 +686,7 @@
         "aruco": [
             {
                 "pose": {},
-                "arucoId": ""
+                "arucoId": "303"
             }
         ]
     },
@@ -1377,7 +1377,7 @@
         "aruco": [
             {
                 "pose": {},
-                "arucoId": ""
+                "arucoId": "3"
             }
         ]
     },
@@ -2068,8 +2068,13 @@
         "aruco": [
             {
                 "pose": {},
-                "arucoId": ""
+                "arucoId": "1"
+            },
+            {
+                "pose": {},
+                "arucoId": "303"
             }
+
         ]
     }
 }

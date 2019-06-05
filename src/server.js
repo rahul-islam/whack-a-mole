@@ -11,7 +11,7 @@ var io = require('socket.io')(server);
 var fs = require("fs"); /// Only using this to create simulation pose file
 
 var { config } = require('./config/environment');
-console.info(config)
+console.info('config\t->', config)
 
 server.listen(config.port, () => {
   console.log('Server listening at port %d', config.port);
@@ -29,7 +29,7 @@ if (config.env === "development") {
   univesalDataMap = JSON.parse(rawdata);
 }
 
-console.info(univesalDataMap);
+console.info('Dataframe\t->', univesalDataMap);
 
 io.on('connection', (socket) => {
   var arucoRegistration = false;
