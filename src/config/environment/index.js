@@ -15,6 +15,7 @@ import _ from 'lodash';
 const all = {
 
   env: process.env.NODE_ENV || 'development',
+  port: process.env.NODE_ENVPORT || 3000
 
 };
 
@@ -23,7 +24,7 @@ const all = {
 export const config = _.merge(
   all,
   require('./shared'),
-  require(`./${process.env.NODE_ENV}.js`) || {},
+  require(`./${all.env}.js`) || {},
 );
 
 export default { config };
