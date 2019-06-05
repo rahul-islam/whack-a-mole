@@ -9,7 +9,7 @@ var path = require('path');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 3000;
-
+var fs = require("fs"); /// Only using this to create simulation pose file
 server.listen(port, () => {
   console.log('Server listening at port %d', port);
 });
@@ -29,6 +29,14 @@ io.on('connection', (socket) => {
       
     // we tell the client to execute 'new message'
     socket.broadcast.emit('dataframe', univesalDataMap );
+    // fs.appendFile("./pose_test_5.json", JSON.stringify(univesalDataMap, null, 4), (err) => {
+    //   if (err) {
+    //       console.error(err);
+    //       return;
+    //     };
+    //    console.log("File has been created");
+    //   });
+  
   }); 
 
   // when the client emits 'add user', this listens and executes

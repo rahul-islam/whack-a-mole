@@ -64,6 +64,30 @@ function setup() {
 }
 
 
+function return_max_score_pose(pose_obj)
+{
+    var keys = Object.keys(pose_obj)
+    var max_key;
+    var max_score = 0;
+    for (let i=0 ; i<keys.length ; i++)
+    {
+        console.log('Pose corresponding to key value is::')
+        console.log(poses[keys[i]]['human'])
+        score = poses[keys[i]]['human']['pose'][0]['score']
+        console.log('score is::')
+        console.log(score)
+        if(score > max_score)
+        {
+            max_score = score
+            max_key = i
+        }
+
+    }
+    return max_key
+
+}
+
+
 function getUserIP(onNewIP) { //  onNewIp - your listener function for new IPs
     //compatibility for firefox and chrome
     var myPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
