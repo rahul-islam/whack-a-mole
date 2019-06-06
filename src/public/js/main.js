@@ -15,11 +15,16 @@ var user_ip; // ip of user stored in variable using getIP function
 var poses_received = {}; //pose recieved from server using fetchPoseButton and socket 2
 var keypoints_fetched = {};
 var human_pose_fetched = {};
+
+var enrolled_marker;
 // var socket;
 // socket.emit('register aruco', 'A')
 socket.on('dataframe', (data) => {
-    console.log(data);
+    // console.log(socket.arucoId);
     poses_received  = data
+    console.log('enrolled_marker is:::')
+    console.log(enrolled_marker)
+
 });
 
 const sendDataFrame = (poses,marker_id) => {
@@ -64,6 +69,30 @@ function setup() {
 }
 
 
+// function return_max_score_pose(pose_obj)
+// {
+//     var keys = Object.keys(pose_obj)
+//     var max_key;
+//     var max_score = 0;
+//     for (let i=0 ; i<keys.length ; i++)
+//     {
+//         console.log('Pose corresponding to key value is::')
+//         console.log(poses[keys[i]]['human'])
+//         score = poses[keys[i]]['human']['pose'][0]['score']
+//         console.log('score is::')
+//         console.log(score)
+//         if(score > max_score)
+//         {
+//             max_score = score
+//             max_key = i
+//         }
+
+//     }
+//     return max_key
+
+// }
+
+
 function return_max_score_pose(pose_obj)
 {
     var keys = Object.keys(pose_obj)
@@ -71,17 +100,28 @@ function return_max_score_pose(pose_obj)
     var max_score = 0;
     for (let i=0 ; i<keys.length ; i++)
     {
-        console.log('Pose corresponding to key value is::')
-        console.log(poses[keys[i]]['human'])
-        score = poses[keys[i]]['human']['pose'][0]['score']
-        console.log('score is::')
-        console.log(score)
-        if(score > max_score)
+        for(let j=0; j<poses[keys[i]]['human'].length;j++)
         {
-            max_score = score
-            max_key = i
+            id = poses[keys[i]]['human'][j]['id']
+            if(id==enrolled_marker.toString)
+            {
+                score = poses[keys[i]]['human'][j]['pose'][0].score
+                console.log('score is:::')
+                console.log(score)
+                if(parseFloat(score) > max_score)
+                {
+                    max_key=keys[i]
+                    max_score = score
+                    console.log('new score is::')
+                    console.log(max_score)
+                    
+                }
+    
+            }
+            
+            
         }
-
+   
     }
     return max_key
 
@@ -153,6 +193,8 @@ function tick() {
             marker_id = markers[markers.length-1].id.toString();
             // Enrollment(markers[i].id, 0)
             socket.emit('register aruco',marker_id)
+            enrolled_marker = marker_id
+            enrollButton = false
         }
     }   
     drawCorners(markers); //marker corners drawn
