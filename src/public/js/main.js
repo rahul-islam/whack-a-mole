@@ -1,4 +1,7 @@
 var video, canvas, context, imageData, detector, canvas1, poseNet, poses = [];
+var posit;
+var modelSize = 35.0; //millimeters
+
 var socket = io();
 // var socket3 = io.connect('http://localhost:3000/getusermedia.html');
 var enrollButton = false; //Enroll button. Pressed to enrol a marker. 
@@ -62,6 +65,7 @@ function setup() {
     video.hide();
 
     detector = new AR.Detector();
+    posit = new POS.Posit(modelSize, canvas.width);
 
     requestAnimationFrame(tick);
 
