@@ -32,11 +32,12 @@ socket.on('dataframe', (data) => {
 
 const sendDataFrame = (poses,marker_id) => {
     socket.emit('dataframe', {
-        human: {
+        human: [{
             pose: poses,
             id : marker_id
-        }
+        }]
     });
+
 }
 
 function setup() {
@@ -100,24 +101,28 @@ function setup() {
 function return_max_score_pose(pose_obj)
 {
     var keys = Object.keys(pose_obj)
+    // console.log('keys are as follows:')
+    console.log(keys)
     var max_key;
     var max_score = 0;
+    var max_index=0;
     for (let i=0 ; i<keys.length ; i++)
     {
-        for(let j=0; j<poses[keys[i]]['human'].length;j++)
+        for(let j=0; j<pose_obj[keys[i]]['human'].length;j++)
         {
-            id = poses[keys[i]]['human'][j]['id']
-            if(id==enrolled_marker.toString)
+            id = pose_obj[keys[i]]['human'][j]['id']
+            if(id==enrolled_marker)
             {
-                score = poses[keys[i]]['human'][j]['pose'][0].score
-                console.log('score is:::')
-                console.log(score)
+                score = pose_obj[keys[i]]['human'][j]['pose'][0].score
+                // console.log('score is:::')
+                // console.log(score)
                 if(parseFloat(score) > max_score)
                 {
                     max_key=keys[i]
                     max_score = score
-                    console.log('new score is::')
-                    console.log(max_score)
+                    max_index =j
+                    // console.log('new score is::')
+                    // console.log(max_score)
                     
                 }
     
@@ -127,7 +132,8 @@ function return_max_score_pose(pose_obj)
         }
    
     }
-    return max_key
+    max_pose = pose_obj[max_key]['human'][max_index]['pose'][0]
+    return max_pose
 
 }
 
@@ -154,7 +160,7 @@ function tick() {
             marker_id = markers[markers.length-1].id.toString();
             // Enrollment(markers[i].id, 0)
             socket.emit('register aruco',marker_id)
-            enrolled_marker = marker_id
+            enrolled_marker = marker_id.toString()
             enrollButton = false
         }
     }   
@@ -162,8 +168,12 @@ function tick() {
     drawId(markers); //marker id written
     drawKeypoints(); //pose keypoints drawn
     drawSkeleton(); //pose skeleton drawn
+    
+    console.log('About to draw')
+    // drawKeypoints_fetched();
+    console.log('length is:::')
+    console.log(Object.keys(keypoints_fetched).length)
     if (Object.keys(keypoints_fetched).length != 0 && keypoints_fetched.constructor === Object != 0) {
-        console.log(keypoints_fetched.length)
         drawKeypoints_fetched();  //check if poses_recieved.length is not 0 on pressing fetch_button and draw them
     }
     if (sendPoseButton) {
@@ -181,8 +191,14 @@ function tick() {
         // console.log('Fetching data frame from server')
         // console.log(poses_received[marker_id])
         // console.log('Pose point recieved is::')
-        console.log('Fetching pose from server')
-        console.log(poses_received)
+        // console.log(poses_received)
+        // console.log('Fetching pose from server')
+        // return_max_score_pose(poses_received)
+        keypoints_fetched=return_max_score_pose(poses_received)
+        console.log('pose fetched is::')
+        // console.log(human_pose_fetched)
+
+
         // human_pose_fetched = poses_received[marker_id]['human']['pose'] 
         // keypoints_fetched = human_pose_fetched[human_pose_fetched.length-1]['pose']
         // console.log(keypoints_fetched)

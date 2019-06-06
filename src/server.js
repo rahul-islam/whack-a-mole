@@ -36,6 +36,7 @@ io.on('connection', (socket) => {
 
   // when the client emits 'dataframe', this listens and executes
   socket.on('dataframe', (data) => {
+    if (!socket.arucoId) return;
     univesalDataMap[socket.arucoId] = data
 
     // emit in user channel also
