@@ -179,9 +179,10 @@ function tick() {
         // console.log(poses_received[marker_id])
         // console.log('Pose point recieved is::')
         console.log('Fetching pose from server')
-        human_pose_fetched = poses_received[marker_id]['human']['pose'] 
-        keypoints_fetched = human_pose_fetched[human_pose_fetched.length-1]['pose']
-        console.log(keypoints_fetched)
+        console.log(poses_received)
+        // human_pose_fetched = poses_received[marker_id]['human']['pose'] 
+        // keypoints_fetched = human_pose_fetched[human_pose_fetched.length-1]['pose']
+        // console.log(keypoints_fetched)
 
         // socket.on('dataframe', (data) => {
         //     console.log('Data fetched from server is::::')
