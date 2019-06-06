@@ -132,51 +132,6 @@ function return_max_score_pose(pose_obj)
 }
 
 
-function getUserIP(onNewIP) { //  onNewIp - your listener function for new IPs
-    //compatibility for firefox and chrome
-    var myPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-    var pc = new myPeerConnection({
-        iceServers: []
-    }),
-        noop = function () { },
-        localIPs = {},
-        ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/g,
-        key;
-
-    function iterateIP(ip) {
-        if (!localIPs[ip]) onNewIP(ip);
-        localIPs[ip] = true;
-    }
-
-    //create a bogus data channel
-    pc.createDataChannel("");
-
-    // create offer and set local description
-    pc.createOffer().then(function (sdp) {
-        sdp.sdp.split('\n').forEach(function (line) {
-            if (line.indexOf('candidate') < 0) return;
-            line.match(ipRegex).forEach(iterateIP);
-        });
-
-        pc.setLocalDescription(sdp, noop, noop);
-    }).catch(function (reason) {
-        // An error occurred, so handle the failure to connect
-    });
-
-    //listen for candidate events
-    pc.onicecandidate = function (ice) {
-        if (!ice || !ice.candidate || !ice.candidate.candidate || !ice.candidate.candidate.match(ipRegex)) return;
-        ice.candidate.candidate.match(ipRegex).forEach(iterateIP);
-    };
-}
-
-var dummy_ip = '10.128.88.2'
-getUserIP(function (ip) {
-    user_ip = ip.toString()
-    alert("Got IP! :" + ip);
-});
-
-
 function modelLoaded() {
     console.log('Model Loaded!');
 }
@@ -186,7 +141,9 @@ function modelLoaded() {
 // var socket3 = io();
 function tick() {
     requestAnimationFrame(tick);
-    image(video, 0, 0, width, height);
+    // image(video, 0, 0, width, height);
+    // console.log(video)
+    clear(); 
     imageData = context.getImageData(0, 0, width, height);
     var markers = detector.detect(imageData); //markers detected at this step
     // console.log(markers.length)
