@@ -5,15 +5,20 @@
 
 #### How to run server
 1. Install all dependencies
-`$  yarn install`
+
+> `$  yarn install`
 
 2. Set environment
-`$  export NODE_ENV=production`
+
+> `$  export NODE_ENV=production`
+
  To run server wth mock devices:
-`$  export NODE_ENV=development`
+
+> `$  export NODE_ENV=development`
 
 3. Start server
-`$  yarn start`
+
+> `$  yarn start`
 
 
 
