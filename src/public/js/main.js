@@ -63,7 +63,7 @@ function setup() {
         
     });
     // Hide the video element, and just show the canvas
-    video.hide();
+    // video.hide();
 
     detector = new AR.Detector();
     posit = new POS.Posit(modelSize, canvas.width);
@@ -149,8 +149,8 @@ function tick() {
     requestAnimationFrame(tick);
     // image(video, 0, 0, width, height);
     // console.log(video)
-    clear(); 
     imageData = context.getImageData(0, 0, width, height);
+    clear(); 
     var markers = detector.detect(imageData); //markers detected at this step
     // console.log(markers.length)
     if(markers.length > 0)
