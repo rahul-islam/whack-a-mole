@@ -147,11 +147,12 @@ function modelLoaded() {
 // var socket3 = io();
 function tick() {
     requestAnimationFrame(tick);
-    // image(video, 0, 0, width, height);
+    image(video, 0, 0, width, height);
     // console.log(video)
     imageData = context.getImageData(0, 0, width, height);
     clear(); 
     var markers = detector.detect(imageData); //markers detected at this step
+    console.log(markers)
     // console.log(markers.length)
     if(markers.length > 0)
     {
