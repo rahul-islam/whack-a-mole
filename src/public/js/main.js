@@ -45,6 +45,7 @@ function setup() {
 
     // canvas1 = createCanvas(screen.width-50, 480);
     canvas1 = createCanvas(640, 480);
+    background(0);
     canvas1.parent('myContainer');
     // canvas2 = createCanvas(640,80);
     video = createCapture(VIDEO);
@@ -63,7 +64,7 @@ function setup() {
         
     });
     // Hide the video element, and just show the canvas
-    // video.hide();
+    video.hide();
 
     detector = new AR.Detector();
     posit = new POS.Posit(modelSize, canvas.width);
@@ -147,7 +148,9 @@ function modelLoaded() {
 // var socket3 = io();
 function tick() {
     requestAnimationFrame(tick);
+    background(0)
     image(video, 0, 0, width, height);
+    // image(video, 0, 0, 100, 100);
     // console.log(video)
     imageData = context.getImageData(0, 0, width, height);
     clear(); 
@@ -253,9 +256,9 @@ function drawKeypoints() {
             let keypoint = pose.keypoints[j];
             // Only draw an ellipse is the pose probability is bigger than 0.2
             if (keypoint.score > 0.2) {
-                fill(255, 0, 0);
+                fill(0, 255, 255);
                 noStroke();
-                ellipse(keypoint.position.x, keypoint.position.y, 10, 10);
+                ellipse(keypoint.position.x, keypoint.position.y, 20, 20);
             }
         }
     }
@@ -274,7 +277,7 @@ function drawKeypoints_fetched() {
         if (keypoint.score > 0.2) {
             fill(0, 255, 0);
             noStroke();
-            ellipse(keypoint.position.x, keypoint.position.y, 10, 10);
+            ellipse(keypoint.position.x, keypoint.position.y, 20, 20);
         }
     }
     // }
@@ -294,6 +297,12 @@ function drawCoordinates_on_cavas(x, y) {
     ctx.fill();
 }
 
+function draw()
+{
+//    background(0)
+    image(video, 0, 0, 100, 100);
+}
+
 // A function to draw the skeletons
 function drawSkeleton() {
     // Loop through all the skeletons detected
@@ -303,7 +312,8 @@ function drawSkeleton() {
         for (let j = 0; j < skeleton.length; j++) {
             let partA = skeleton[j][0];
             let partB = skeleton[j][1];
-            stroke(255, 0, 0);
+            stroke('#14dfe2');
+            strokeWeight(2);
             line(partA.position.x, partA.position.y, partB.position.x, partB.position.y);
         }
     }
