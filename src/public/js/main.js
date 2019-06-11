@@ -44,8 +44,8 @@ function setup() {
     alert(screen.width)
 
     // canvas1 = createCanvas(screen.width-50, 480);
-    canvas1 = createCanvas(640, 480);
-    background(0);
+    canvas1 = createCanvas(320,200);
+    // background(255);
     canvas1.parent('myContainer');
     // canvas2 = createCanvas(640,80);
     video = createCapture(VIDEO);
@@ -74,29 +74,6 @@ function setup() {
     // socket = socket.io.connect('http://localhost:3000')
 }
 
-
-// function return_max_score_pose(pose_obj)
-// {
-//     var keys = Object.keys(pose_obj)
-//     var max_key;
-//     var max_score = 0;
-//     for (let i=0 ; i<keys.length ; i++)
-//     {
-//         console.log('Pose corresponding to key value is::')
-//         console.log(poses[keys[i]]['human'])
-//         score = poses[keys[i]]['human']['pose'][0]['score']
-//         console.log('score is::')
-//         console.log(score)
-//         if(score > max_score)
-//         {
-//             max_score = score
-//             max_key = i
-//         }
-
-//     }
-//     return max_key
-
-// }
 
 
 function return_max_score_pose(pose_obj)
@@ -143,16 +120,13 @@ function modelLoaded() {
     console.log('Model Loaded!');
 }
 
-// var socket1 = io();
-// var socket2 = io();
-// var socket3 = io();
 function tick() {
     requestAnimationFrame(tick);
-    background(0)
-    image(video, 0, 0, width, height);
+    // background(0)
+    image(video, 0, 0, 640, 480);
     // image(video, 0, 0, 100, 100);
     // console.log(video)
-    imageData = context.getImageData(0, 0, width, height);
+    imageData = context.getImageData(0, 0, 640, 480);
     clear(); 
     var markers = detector.detect(imageData); //markers detected at this step
     console.log(markers)
@@ -170,8 +144,8 @@ function tick() {
     }   
     drawCorners(markers); //marker corners drawn
     drawId(markers); //marker id written
-    drawKeypoints(); //pose keypoints drawn
-    drawSkeleton(); //pose skeleton drawn
+    // drawKeypoints(); //pose keypoints drawn
+    // drawSkeleton(); //pose skeleton drawn
     
     console.log('About to draw')
     // drawKeypoints_fetched();
@@ -203,47 +177,17 @@ function tick() {
         // console.log(human_pose_fetched)
 
 
-        // human_pose_fetched = poses_received[marker_id]['human']['pose'] 
-        // keypoints_fetched = human_pose_fetched[human_pose_fetched.length-1]['pose']
-        // console.log(keypoints_fetched)
-
-        // socket.on('dataframe', (data) => {
-        //     console.log('Data fetched from server is::::')
-        //     console.log(data);
-        //     // console.log(data[marker_id])
-        // });
-
-
-
-        // socket2.emit('dummy5', user_ip)
-
-        // socket2.on('dummy4', function (data) {
-
-
-        //     // console.log(data['pose_data'])
-
-        //     console.log('data fetched from server is::')
-        //     // console.log(data)
-        //     // if(data['pose_data']['ip']==dummy_ip)
-        //     // {
-        //     // poses_received = data['pose'][user_ip]
-        //     poses_received = data
-            
-        // // });
-
+       
     }
 
 
 }
 
-function get_and_draw(data) {
-    console.log('The server has a message for you: ')
-    // console.log(data)
-}
-function snapshot() {
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-}
+
+// function snapshot() {
+//     context.drawImage(video, 0, 0, canvas.width, canvas.height);
+//     imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+// }
 
 // A function to draw ellipses over the detected keypoints
 function drawKeypoints() {
@@ -285,23 +229,21 @@ function drawKeypoints_fetched() {
 
 var pointSize = 3;
 
-function drawCoordinates_on_cavas(x, y) {
-    console.log('inside function')
-    var ctx = document.getElementById("canvas").getContext("2d");
 
-
-    ctx.fillStyle = "#ff2626"; // Red color
-
-    ctx.beginPath();
-    ctx.arc(x, y, pointSize, 0, Math.PI * 2, true);
-    ctx.fill();
-}
 
 function draw()
 {
-//    background(0)
-    image(video, 0, 0, 100, 100);
+    background(0)
+    image(video, 0, 0,60,100);
+    // drawCorners(markers); //marker corners drawn
+    // drawId(markers); //marker id written
+    drawKeypoints(); //pose keypoints drawn
+    drawSkeleton(); //pose skeleton drawn
 }
+
+// function windowResized() {
+//     resizeCanvas(640,480);
+//  }
 
 // A function to draw the skeletons
 function drawSkeleton() {

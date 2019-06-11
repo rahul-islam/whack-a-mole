@@ -9,6 +9,7 @@
   font-size: 16px;
   margin: 4px 2px;
   cursor: pointer;
+  border-radius: 25px;
 }
 
 .checkButton {background-color: #008CBA;border: none;
@@ -19,7 +20,9 @@
   display: inline-block;
   font-size: 16px;
   margin: 4px 2px;
-  cursor: pointer;} /* Blue */
+  cursor: pointer;
+  border-radius: 25px;
+} /* Blue */
 .sendPoseButton {background-color: #f44336;border: none;
   color: white;
   padding: 15px 32px;
@@ -28,7 +31,9 @@
   display: inline-block;
   font-size: 16px;
   margin: 4px 2px;
-  cursor: pointer;} /* Red */ 
+  cursor: pointer;
+  border-radius: 25px;
+} /* Red */ 
 .fetchPoseButton {background-color: #e7e7e7; color: black;border: none;
   color: white;
   padding: 15px 32px;
@@ -37,7 +42,9 @@
   display: inline-block;
   font-size: 16px;
   margin: 4px 2px;
-  cursor: pointer;} /* Gray */ 
+  cursor: pointer;
+  border-radius: 25px;
+} /* Gray */ 
 .RestartButton {background-color: #555555;border: none;
   color: white;
   padding: 15px 32px;
@@ -46,4 +53,6 @@
   display: inline-block;
   font-size: 16px;
   margin: 4px 2px;
-  cursor: pointer;} /* Black */
+  cursor: pointer;
+  border-radius: 25px;
+} /* Black */
