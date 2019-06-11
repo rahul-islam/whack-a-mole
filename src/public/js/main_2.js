@@ -62,7 +62,7 @@ function setup() {
     canvas1.parent('myContainer');
     // canvas2 = createCanvas(640,80);
     video = createCapture(VIDEO);
-    video.hide();
+    // video.hide();
     video.size(width, height);
     canvas = canvas1.canvas;
     context = canvas.getContext("2d");
@@ -82,7 +82,7 @@ function setup() {
     detector = new AR.Detector();
     posit = new POS.Posit(modelSize, canvas.width);
 
-    requestAnimationFrame(tick);
+    // requestAnimationFrame(tick);
 
     // socket = socket.io.connect('http://localhost:3000')
 }
@@ -133,80 +133,80 @@ function modelLoaded() {
     console.log('Model Loaded!');
 }
 
-function tick() {
-    requestAnimationFrame(tick);
-    // background(0)
-    // image(video, 0, 0, width, height);
-    console.log('video height is')
-    console.log(canvas_width/displayWidth)
-    console.log(canvas_height/displayHeight)
-    console.log('poses is::')
-    console.log(poses)
-    // image(video, 0, 0, 100, 100);
-    // console.log(video)
-    imageData = context.getImageData(0, 0, width, height);
-    clear();    
-    var markers = detector.detect(imageData); //markers detected at this step
-    console.log(markers)
-    // console.log(markers.length)
-    if(markers.length > 0)
-    {
-        if(enrollButton)
-        {
-            marker_id = markers[markers.length-1].id.toString();
-            // Enrollment(markers[i].id, 0)
-            socket.emit('register aruco',marker_id)
-            enrolled_marker = marker_id.toString()
-            enrollButton = false
-        }
-    }   
-    drawCorners(markers); //marker corners drawn
-    drawId(markers); //marker id written
+// function tick() {
+//     requestAnimationFrame(tick);
+//     // background(0)
+//     // image(video, 0, 0, width, height);
+//     console.log('video height is')
+//     console.log(canvas_width/displayWidth)
+//     console.log(canvas_height/displayHeight)
+//     console.log('poses is::')
+//     console.log(poses)
+//     // image(video, 0, 0, 100, 100);
+//     // console.log(video)
+//     imageData = context.getImageData(0, 0, width, height);
+//     clear();    
+//     var markers = detector.detect(imageData); //markers detected at this step
+//     console.log(markers)
+//     // console.log(markers.length)
+//     if(markers.length > 0)
+//     {
+//         if(enrollButton)
+//         {
+//             marker_id = markers[markers.length-1].id.toString();
+//             // Enrollment(markers[i].id, 0)
+//             socket.emit('register aruco',marker_id)
+//             enrolled_marker = marker_id.toString()
+//             enrollButton = false
+//         }
+//     }   
+//     drawCorners(markers); //marker corners drawn
+//     drawId(markers); //marker id written
 
-    console.log('About to draw')
-    // drawKeypoints_fetched();
-    console.log('length is:::')
-    console.log(Object.keys(keypoints_fetched).length)
-    if (Object.keys(keypoints_fetched).length != 0 && keypoints_fetched.constructor === Object != 0) {
-        drawKeypoints_fetched();  //check if poses_recieved.length is not 0 on pressing fetch_button and draw them
-    }
-    if (sendPoseButton) {
-        // logPose();  
-        // console.log('Emitting pose to server')
-        sendDataFrame(poses,marker_id)
-        // user_pose_Dat[user_ip]=[poses[poses.length-1]]; 
-        // user_pose_Dat['data'] = { 'ip': user_ip, 'pose': poses[poses.length - 1] }
-        // // console.log(user_pose_Dat[user_ip][0].pose.keypoints)
-        // // socket1.emit('dummy3',user_pose_Dat[user_ip][0].pose.keypoints);
-        // socket1.emit('dummy3', user_pose_Dat);
-        //  console.log(sendPoseButton)
-    }
-    if (fetchPoseButton) {
-        // console.log('Fetching data frame from server')
-        // console.log(poses_received[marker_id])
-        // console.log('Pose point recieved is::')
-        // console.log(poses_received)
-        // console.log('Fetching pose from server')
-        // return_max_score_pose(poses_received)
-        keypoints_fetched=return_max_score_pose(poses_received)
-        console.log('pose fetched is::')
-        // console.log(human_pose_fetched)
+//     console.log('About to draw')
+//     // drawKeypoints_fetched();
+//     console.log('length is:::')
+//     console.log(Object.keys(keypoints_fetched).length)
+//     if (Object.keys(keypoints_fetched).length != 0 && keypoints_fetched.constructor === Object != 0) {
+//         drawKeypoints_fetched();  //check if poses_recieved.length is not 0 on pressing fetch_button and draw them
+//     }
+//     if (sendPoseButton) {
+//         // logPose();  
+//         // console.log('Emitting pose to server')
+//         sendDataFrame(poses,marker_id)
+//         // user_pose_Dat[user_ip]=[poses[poses.length-1]]; 
+//         // user_pose_Dat['data'] = { 'ip': user_ip, 'pose': poses[poses.length - 1] }
+//         // // console.log(user_pose_Dat[user_ip][0].pose.keypoints)
+//         // // socket1.emit('dummy3',user_pose_Dat[user_ip][0].pose.keypoints);
+//         // socket1.emit('dummy3', user_pose_Dat);
+//         //  console.log(sendPoseButton)
+//     }
+//     if (fetchPoseButton) {
+//         // console.log('Fetching data frame from server')
+//         // console.log(poses_received[marker_id])
+//         // console.log('Pose point recieved is::')
+//         // console.log(poses_received)
+//         // console.log('Fetching pose from server')
+//         // return_max_score_pose(poses_received)
+//         keypoints_fetched=return_max_score_pose(poses_received)
+//         console.log('pose fetched is::')
+//         // console.log(human_pose_fetched)
 
 
        
-    }
+//     }
 
 
 
-    function newFunction() {
-        console.log(poses);
-    }
-}
+//     function newFunction() {
+//         console.log(poses);
+//     }
+// }
 
 
-function newFunction_1(newFunction) {
-    newFunction();
-}
+// function newFunction_1(newFunction) {
+//     newFunction();
+// }
 
 // function snapshot() {
 //     context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -263,8 +263,50 @@ function draw()
 {
     background(0)
     image(video, 0, 0,50,50);
-    // drawCorners(markers); //marker corners drawn
-    // drawId(markers); //marker id written
+    // requestAnimationFrame(tick);
+    // background(0)
+    // image(video, 0, 0, width, height);
+    console.log('video height is')
+    console.log(canvas_width/displayWidth)
+    console.log(canvas_height/displayHeight)
+    console.log('poses is::')
+    console.log(poses)
+    // image(video, 0, 0, 100, 100);
+    // console.log(video)
+    imageData = context.getImageData(0, 0, width, height);
+    clear();    
+    var markers = detector.detect(imageData); //markers detected at this step
+    console.log(markers)
+    // console.log(markers.length)
+    if(markers.length > 0)
+    {
+        if(enrollButton)
+        {
+            marker_id = markers[markers.length-1].id.toString();
+            // Enrollment(markers[i].id, 0)
+            socket.emit('register aruco',marker_id)
+            enrolled_marker = marker_id.toString()
+            enrollButton = false
+        }
+    }   
+    
+    console.log('About to draw')
+    // drawKeypoints_fetched();
+    console.log('length is:::')
+    console.log(Object.keys(keypoints_fetched).length)
+    if (Object.keys(keypoints_fetched).length != 0 && keypoints_fetched.constructor === Object != 0) {
+        drawKeypoints_fetched();  //check if poses_recieved.length is not 0 on pressing fetch_button and draw them
+    }
+    if (sendPoseButton) {
+        sendDataFrame(poses,marker_id)
+      
+    }
+    if (fetchPoseButton) {
+        keypoints_fetched=return_max_score_pose(poses_received)
+        console.log('pose fetched is::')
+    
+    drawCorners(markers); //marker corners drawn
+    drawId(markers); //marker id written
     drawKeypoints(); //pose keypoints drawn
     drawSkeleton(); //pose skeleton drawn
 }
