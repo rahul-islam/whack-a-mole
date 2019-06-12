@@ -54,16 +54,18 @@ function setup() {
         canvas_width = displayWidth-20
     }
     canvas_height = 500
-    canvas1 = createCanvas(canvas_width,canvas_height);
+    background(255)
+    // canvas1 = createCanvas(canvas_width,canvas_height);
+    canvas1 = createCanvas(640,480);
     var cent_x = (displayWidth - width) / 2;
     var cent_y = (displayHeight - height) / 2;
-    canvas1.position(cent_x, cent_y);
+    // canvas1.position(cent_x, cent_y);
     // background(0);   
     canvas1.parent('myContainer');
     // canvas2 = createCanvas(640,80);
     video = createCapture(VIDEO);
     video.hide();
-    video.size(800,600);
+    video.size(width,height);
     canvas = canvas1.canvas;
     context = canvas.getContext("2d");
     canvas.width = parseInt(canvas.style.width);
@@ -135,8 +137,10 @@ function modelLoaded() {
 
 function tick() {
     requestAnimationFrame(tick);
+    // resizeCanvas(200,200);
+    // image(video, 0, 0,canvas_width/2,canvas_height/4);
     // background(0)
-    // image(video, 0, 0, width, height);
+    image(video, 0, 0, width, height);
     // console.log('video height is')
     // console.log(canvas_width/displayWidth)
     // console.log(canvas_height/displayHeight)
@@ -145,7 +149,7 @@ function tick() {
     // image(video, 0, 0, 100, 100);
     // console.log(video)
     imageData = context.getImageData(0, 0, width, height);
-    clear();    
+    // clear();    
     var markers = detector.detect(imageData); //markers detected at this step
     // console.log(markers)
     // console.log(markers.length)
@@ -225,7 +229,7 @@ function drawKeypoints() {
                 fill(0, 255, 255);
                 noStroke();
                 // ellipse(((keypoint.position.x)/4)+25,(keypoint.position.y)/4,5,5);
-                ellipse(((keypoint.position.x))+25,(keypoint.position.y),5,5);
+                ellipse(((keypoint.position.x)),(keypoint.position.y),10,10);
                 // ellipse((keypoint.position.x)*(canvas_width/displayWidth),(keypoint.position.y-100)*(canvas_height/displayHeight),5,5);
                 // ellipse(keypoint.position.x-100/2, keypoint.position.y-100/2,5,5);
             }
@@ -249,7 +253,7 @@ function drawKeypoints_fetched() {
             console.log('keypoint position is')
             console.log(keypoint.position.x)
             // ellipse(keypoint.position.x, keypoint.position.y, 10, 10);
-            ellipse(((keypoint.position.x)/4)+25,(keypoint.position.y)/4,5,5);
+            ellipse(((keypoint.position.x)/4),(keypoint.position.y)/4,5,5);
         }
     }
     // }
@@ -259,15 +263,16 @@ var pointSize = 3;
 
 
 
-function draw()
-{
-    // background(0)
-    image(video, 0, 0,canvas_width/2,canvas_height/4);
-    // drawCorners(markers); //marker corners drawn
-    // drawId(markers); //marker id written
-    // drawKeypoints(); //pose keypoints drawn
-    // drawSkeleton(); //pose skeleton drawn
-}
+// function draw()
+// {
+//     // background(0)
+//     image(video, 0, 0,canvas_width/4,canvas_height/4);
+    
+//     // drawCorners(markers); //marker corners drawn
+//     // drawId(markers); //marker id written
+//     // drawKeypoints(); //pose keypoints drawn
+//     // drawSkeleton(); //pose skeleton drawn
+// }
 
 // function windowResized() {
 //     resizeCanvas(640,480);
@@ -283,9 +288,9 @@ function drawSkeleton() {
             let partA = skeleton[j][0];
             let partB = skeleton[j][1];
             stroke('#14dfe2');
-            strokeWeight(2);
+            strokeWeight(3);
             // line((partA.position.x/4)+25, (partA.position.y)/4,((partB.position.x)/4)+25, (partB.position.y)/4);
-            line((partA.position.x)+25, (partA.position.y),((partB.position.x))+25, (partB.position.y));
+            line((partA.position.x), (partA.position.y),((partB.position.x)), (partB.position.y));
         }
     }
 }
