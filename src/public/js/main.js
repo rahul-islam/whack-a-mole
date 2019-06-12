@@ -162,6 +162,8 @@ function tick() {
     }   
     drawCorners(markers); //marker corners drawn
     drawId(markers); //marker id written
+    drawKeypoints(); //pose keypoints drawn
+    drawSkeleton(); //pose skeleton drawn
 
     console.log('About to draw')
     // drawKeypoints_fetched();
@@ -196,8 +198,6 @@ function tick() {
        
     }
 
-
-
     function newFunction() {
         console.log(poses);
     }
@@ -223,7 +223,7 @@ function drawKeypoints() {
             // A keypoint is an object describing a body part (like rightArm or leftShoulder)
             let keypoint = pose.keypoints[j];
             // Only draw an ellipse is the pose probability is bigger than 0.2
-            if (keypoint.score > 0.2) {
+            if (keypoint.score > 0.4) {
                 fill(0, 255, 255);
                 noStroke();
                 ellipse(((keypoint.position.x)/4)+25,(keypoint.position.y)/4,5,5);
@@ -249,7 +249,8 @@ function drawKeypoints_fetched() {
             noStroke();
             console.log('keypoint position is')
             console.log(keypoint.position.x)
-            ellipse(keypoint.position.x, keypoint.position.y, 10, 10);
+            // ellipse(keypoint.position.x, keypoint.position.y, 10, 10);
+            ellipse(((keypoint.position.x)/4)+25,(keypoint.position.y)/4,5,5);
         }
     }
     // }
@@ -265,8 +266,8 @@ function draw()
     image(video, 0, 0,50,50);
     // drawCorners(markers); //marker corners drawn
     // drawId(markers); //marker id written
-    drawKeypoints(); //pose keypoints drawn
-    drawSkeleton(); //pose skeleton drawn
+    // drawKeypoints(); //pose keypoints drawn
+    // drawSkeleton(); //pose skeleton drawn
 }
 
 // function windowResized() {
