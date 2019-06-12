@@ -63,7 +63,7 @@ function setup() {
     // canvas2 = createCanvas(640,80);
     video = createCapture(VIDEO);
     video.hide();
-    video.size(width, height);
+    video.size(800,600);
     canvas = canvas1.canvas;
     context = canvas.getContext("2d");
     canvas.width = parseInt(canvas.style.width);
@@ -137,23 +137,24 @@ function tick() {
     requestAnimationFrame(tick);
     // background(0)
     // image(video, 0, 0, width, height);
-    console.log('video height is')
-    console.log(canvas_width/displayWidth)
-    console.log(canvas_height/displayHeight)
-    console.log('poses is::')
+    // console.log('video height is')
+    // console.log(canvas_width/displayWidth)
+    // console.log(canvas_height/displayHeight)
+    // console.log('poses is::')
     console.log(poses)
     // image(video, 0, 0, 100, 100);
     // console.log(video)
     imageData = context.getImageData(0, 0, width, height);
     clear();    
     var markers = detector.detect(imageData); //markers detected at this step
-    console.log(markers)
+    // console.log(markers)
     // console.log(markers.length)
     if(markers.length > 0)
     {
+        marker_id = markers[markers.length-1].id.toString();
+        console.log(marker_id)
         if(enrollButton)
         {
-            marker_id = markers[markers.length-1].id.toString();
             // Enrollment(markers[i].id, 0)
             socket.emit('register aruco',marker_id)
             enrolled_marker = marker_id.toString()
@@ -204,9 +205,6 @@ function tick() {
 }
 
 
-function newFunction_1(newFunction) {
-    newFunction();
-}
 
 // function snapshot() {
 //     context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -226,7 +224,8 @@ function drawKeypoints() {
             if (keypoint.score > 0.4) {
                 fill(0, 255, 255);
                 noStroke();
-                ellipse(((keypoint.position.x)/4)+25,(keypoint.position.y)/4,5,5);
+                // ellipse(((keypoint.position.x)/4)+25,(keypoint.position.y)/4,5,5);
+                ellipse(((keypoint.position.x))+25,(keypoint.position.y),5,5);
                 // ellipse((keypoint.position.x)*(canvas_width/displayWidth),(keypoint.position.y-100)*(canvas_height/displayHeight),5,5);
                 // ellipse(keypoint.position.x-100/2, keypoint.position.y-100/2,5,5);
             }
@@ -262,8 +261,8 @@ var pointSize = 3;
 
 function draw()
 {
-    background(0)
-    image(video, 0, 0,50,50);
+    // background(0)
+    image(video, 0, 0,canvas_width/2,canvas_height/4);
     // drawCorners(markers); //marker corners drawn
     // drawId(markers); //marker id written
     // drawKeypoints(); //pose keypoints drawn
@@ -285,7 +284,8 @@ function drawSkeleton() {
             let partB = skeleton[j][1];
             stroke('#14dfe2');
             strokeWeight(2);
-            line((partA.position.x/4)+25, (partA.position.y)/4,((partB.position.x)/4)+25, (partB.position.y)/4);
+            // line((partA.position.x/4)+25, (partA.position.y)/4,((partB.position.x)/4)+25, (partB.position.y)/4);
+            line((partA.position.x)+25, (partA.position.y),((partB.position.x))+25, (partB.position.y));
         }
     }
 }
