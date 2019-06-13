@@ -1,9 +1,17 @@
 <html>
 
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <title>Augmented Reality Marker Detector</title>
 
+
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.3/addons/p5.dom.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.dev.js"></script>
@@ -14,8 +22,8 @@
   <script type="text/javascript" src="./js/cv.js"></script>
   <script type="text/javascript" src="./js/aruco.js"></script>
 
-  <script type="text/javascript" src="./js/svd.js"></script> 
-  <script type="text/javascript" src="./js/posit1.js"></script> 
+  <script type="text/javascript" src="./js/svd.js"></script>
+  <script type="text/javascript" src="./js/posit1.js"></script>
 
   <script type="text/javascript" src="./js/main.js"></script>
 
@@ -23,15 +31,15 @@
 
 <body style="font-family: monospace; background:black">
   <video id="video" autoplay="true" style="display:none;"></video>
-  <button class="enrollButton" onclick="change()">Enroll</button>
-  <button class="checkButton" onclick="check()">Check</button>
-  <button class="sendPoseButton" onclick="sendPose()">Send Pose</button>
-  <button class="fetchPoseButton" onclick="fetchPose()">Fetch Pose</button>
-  <button class="RestartButton" onclick="Restart()">Restart</button>
+  <button id="enrollButton" class="enrollButton" onclick="change()">Enroll</button>
+  <button id="checkButton" class="checkButton" onclick="check()">Check</button>
+  <button id="sendPoseButton" class="sendPoseButton" onclick="sendPose()">Send Pose</button>
+  <button id="fetchPoseButton" class="fetchPoseButton" onclick="fetchPose()">Fetch Pose</button>
+  <button id="restartButton" class="RestartButton" onclick="restart()">Restart</button>
   <div id='myContainer'></div>
   <center>
     <!-- <div style="margin: 10px;"><strong>-= Augmented Reality Marker Detector =-</strong></div> -->
-   
+
     <!-- <canvas id="canvas" style="width:640px; height:480px; background-color: black"></canvas> -->
     <!-- <canvas id="canvas2" style="width:640px; height:480px;"></canvas> -->
 
@@ -40,6 +48,17 @@
   <!-- <form>
     <input id="EnrollButton" type = "button" value = "Enroll aruco tag" onclick = "change()" />
  </form> -->
- <link rel="stylesheet" type="text/css" href="./css/main.css">
+  <link rel="stylesheet" type="text/css" href="./css/main.css">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
+
+<script>
+  $("#checkButton").toggle();
+  $("#sendPoseButton").toggle();
+  $("#fetchPoseButton").toggle();
+  $("#restartButton").toggle();
+</script>
+
 </html>

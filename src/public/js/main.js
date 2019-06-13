@@ -27,7 +27,7 @@ socket.on('dataframe', (data) => {
     // console.log(socket.arucoId);
     poses_received  = data
     console.log('enrolled_marker is:::')
-    console.log(enrolled_marker)
+    // console.log(enrolled_marker)
 
 });
 
@@ -65,7 +65,7 @@ function setup() {
     // canvas2 = createCanvas(640,80);
     video = createCapture(VIDEO);
     video.hide();
-    video.size(width,height);
+    video.size(1920,1080);
     canvas = canvas1.canvas;
     context = canvas.getContext("2d");
     canvas.width = parseInt(canvas.style.width);
@@ -75,7 +75,7 @@ function setup() {
     var fetchedPose = [];
     poseNet.on('pose', function (results) {
         poses = results; //poses recieved  
-        console.log(poses)
+        // console.log(poses)
         
     });
     // Hide the video element, and just show the canvas
@@ -140,12 +140,12 @@ function tick() {
     // resizeCanvas(200,200);
     // image(video, 0, 0,canvas_width/2,canvas_height/4);
     // background(0)
-    image(video, 0, 0, width, height);
+    image(video, 0, 0, 640, 480);
     // console.log('video height is')
     // console.log(canvas_width/displayWidth)
     // console.log(canvas_height/displayHeight)
     // console.log('poses is::')
-    console.log(poses)
+    // console.log(poses)
     // image(video, 0, 0, 100, 100);
     // console.log(video)
     imageData = context.getImageData(0, 0, width, height);
@@ -156,13 +156,14 @@ function tick() {
     if(markers.length > 0)
     {
         marker_id = markers[markers.length-1].id.toString();
-        console.log(marker_id)
+        // console.log(marker_id)
         if(enrollButton)
         {
             // Enrollment(markers[i].id, 0)
             socket.emit('register aruco',marker_id)
             enrolled_marker = marker_id.toString()
             enrollButton = false
+            toggleControl()
         }
     }   
     drawCorners(markers); //marker corners drawn
@@ -170,10 +171,10 @@ function tick() {
     drawKeypoints(); //pose keypoints drawn
     drawSkeleton(); //pose skeleton drawn
 
-    console.log('About to draw')
-    // drawKeypoints_fetched();
-    console.log('length is:::')
-    console.log(Object.keys(keypoints_fetched).length)
+    // console.log('About to draw')
+    // // drawKeypoints_fetched();
+    // console.log('length is:::')
+    // console.log(Object.keys(keypoints_fetched).length)
     if (Object.keys(keypoints_fetched).length != 0 && keypoints_fetched.constructor === Object != 0) {
         drawKeypoints_fetched();  //check if poses_recieved.length is not 0 on pressing fetch_button and draw them
     }
@@ -196,7 +197,7 @@ function tick() {
         // console.log('Fetching pose from server')
         // return_max_score_pose(poses_received)
         keypoints_fetched=return_max_score_pose(poses_received)
-        console.log('pose fetched is::')
+        // console.log('pose fetched is::')
         // console.log(human_pose_fetched)
 
 
@@ -448,4 +449,21 @@ function drawId(markers) {
         }
 
     }
+}
+
+/**
+ * 
+ */
+
+function toggleControl() {
+    $("#checkButton").toggle();
+    $("#sendPoseButton").toggle();
+    $("#fetchPoseButton").toggle();
+    $("#restartButton").toggle();
+    $("#enrollButton").toggle();
+}
+
+function restart() {
+    toggleControl() 
+    location.reload(true);
 }
