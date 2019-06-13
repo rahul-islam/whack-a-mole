@@ -237,7 +237,7 @@ function drawKeypoints_fetched() {
             console.log('keypoint position is')
             console.log(keypoint.position.x)
             // ellipse(keypoint.position.x, keypoint.position.y, 10, 10);
-            ellipse(((keypoint.position.x)/4),(keypoint.position.y)/4,5,5);
+            ellipse(((keypoint.position.x)),(keypoint.position.y),5,5);
         }
     }
     // }
