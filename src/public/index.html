@@ -29,14 +29,27 @@
 
 </head>
 
-<body style="font-family: monospace; background:black">
+<body style="font-family: monospace; background:white">
   <video id="video" autoplay="true" style="display:none;"></video>
-  <button id="enrollButton" class="enrollButton" onclick="change()">Enroll</button>
-  <button id="checkButton" class="checkButton" onclick="check()">Check</button>
-  <button id="sendPoseButton" class="sendPoseButton" onclick="sendPose()">Send Pose</button>
-  <button id="fetchPoseButton" class="fetchPoseButton" onclick="fetchPose()">Fetch Pose</button>
-  <button id="restartButton" class="RestartButton" onclick="restart()">Restart</button>
-  <div id='myContainer'></div>
+
+  <div class="container-fluid">
+    <div class="row" id="controlLayer">
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <button id="enrollButton"  class="btn btn-primary" onclick="change()">Enroll</button>
+            <button id="checkButton"  class="btn btn-secondary" onclick="check()">Check</button>
+            <button id="sendPoseButton"  class="btn btn-secondary" onclick="sendPose()">Send Pose</button>
+            <button id="fetchPoseButton"  class="btn btn-secondary" onclick="fetchPose()">Fetch Pose</button>
+            <button id="restartButton"  class="btn btn-secondary" onclick="restart()">Restart</button>
+    
+        </div>
+    </div>
+    <div class="row" id="infoLayer">
+        <h6>Registered Aruco : <span id="registeredAruco" class="badge badge-secondary"></span></h6>
+    </div>
+    <div class="row" id="visLayer">
+        <div id='myContainer' style="background: #e7efe8;"></div>
+    </div>
+  </div>
   <center>
     <!-- <div style="margin: 10px;"><strong>-= Augmented Reality Marker Detector =-</strong></div> -->
 
@@ -59,6 +72,7 @@
   $("#sendPoseButton").toggle();
   $("#fetchPoseButton").toggle();
   $("#restartButton").toggle();
+  $("#registeredAruco").text('N/A');
 </script>
 
 </html>

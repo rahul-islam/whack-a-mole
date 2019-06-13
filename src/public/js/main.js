@@ -41,9 +41,10 @@ const sendDataFrame = (poses,marker_id) => {
 
 }
 
+var hostFeedCanvas;
 function setup() {
-    alert(screen.width)
-
+    // alert(screen.width)
+    
     // canvas1 = createCanvas(screen.width-50, 480);
     if(displayWidth > 800)
     {
@@ -59,17 +60,18 @@ function setup() {
     canvas1 = createCanvas(640,480);
     var cent_x = (displayWidth - width) / 2;
     var cent_y = (displayHeight - height) / 2;
-    // canvas1.position(cent_x, cent_y);
-    // background(0);   
+
     canvas1.parent('myContainer');
-    // canvas2 = createCanvas(640,80);
-    video = createCapture(VIDEO);
-    video.hide();
-    video.size(1920,1080);
     canvas = canvas1.canvas;
     context = canvas.getContext("2d");
-    canvas.width = parseInt(canvas.style.width);
-    canvas.height = parseInt(canvas.style.height);
+    canvas.width = 640
+    canvas.height = 480
+
+    video = createCapture(VIDEO);
+    console.log(video)
+    video.size(canvas.width,canvas.height);
+    // canvas.width = parseInt(canvas.style.width);
+    // canvas.height = parseInt(canvas.style.height);
     // socket = socket.io.connect('http://localhost:3000')
     poseNet = ml5.poseNet(video, modelLoaded);
     var fetchedPose = [];
@@ -79,7 +81,7 @@ function setup() {
         
     });
     // Hide the video element, and just show the canvas
-    
+    video.hide(); 
 
     detector = new AR.Detector();
     posit = new POS.Posit(modelSize, canvas.width);
@@ -137,22 +139,20 @@ function modelLoaded() {
 
 function tick() {
     requestAnimationFrame(tick);
-    // resizeCanvas(200,200);
-    // image(video, 0, 0,canvas_width/2,canvas_height/4);
-    // background(0)
-    image(video, 0, 0, 640, 480);
-    // console.log('video height is')
-    // console.log(canvas_width/displayWidth)
-    // console.log(canvas_height/displayHeight)
-    // console.log('poses is::')
-    // console.log(poses)
-    // image(video, 0, 0, 100, 100);
-    // console.log(video)
-    imageData = context.getImageData(0, 0, width, height);
-    // clear();    
+    image(video, 0, 0, canvas.width, canvas.height);
+    imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+
+    if(!!enrolled_marker){
+        clear();
+        image(video, 0, 0, canvas.width/6, canvas.height/6);
+    }
+    
+    // if (!enrollButton)
+    //     clear();
+
     var markers = detector.detect(imageData); //markers detected at this step
-    // console.log(markers)
-    // console.log(markers.length)
+
     if(markers.length > 0)
     {
         marker_id = markers[markers.length-1].id.toString();
@@ -163,45 +163,28 @@ function tick() {
             socket.emit('register aruco',marker_id)
             enrolled_marker = marker_id.toString()
             enrollButton = false
-            toggleControl()
+            toggleControl();
+            $("#registeredAruco").text(enrolled_marker);
+            // video.show()
         }
     }   
-    drawCorners(markers); //marker corners drawn
-    drawId(markers); //marker id written
-    drawKeypoints(); //pose keypoints drawn
-    drawSkeleton(); //pose skeleton drawn
 
-    // console.log('About to draw')
-    // // drawKeypoints_fetched();
-    // console.log('length is:::')
-    // console.log(Object.keys(keypoints_fetched).length)
+    if(!enrolled_marker){
+        drawCorners(markers); //marker corners drawn
+        drawId(markers); //marker id written
+        drawKeypoints(); //pose keypoints drawn
+        drawSkeleton(); //pose skeleton drawn    
+    }
+
     if (Object.keys(keypoints_fetched).length != 0 && keypoints_fetched.constructor === Object != 0) {
         drawKeypoints_fetched();  //check if poses_recieved.length is not 0 on pressing fetch_button and draw them
     }
+
     if (sendPoseButton) {
-        // logPose();  
-        // console.log('Emitting pose to server')
         sendDataFrame(poses,marker_id)
-        // user_pose_Dat[user_ip]=[poses[poses.length-1]]; 
-        // user_pose_Dat['data'] = { 'ip': user_ip, 'pose': poses[poses.length - 1] }
-        // // console.log(user_pose_Dat[user_ip][0].pose.keypoints)
-        // // socket1.emit('dummy3',user_pose_Dat[user_ip][0].pose.keypoints);
-        // socket1.emit('dummy3', user_pose_Dat);
-        //  console.log(sendPoseButton)
     }
     if (fetchPoseButton) {
-        // console.log('Fetching data frame from server')
-        // console.log(poses_received[marker_id])
-        // console.log('Pose point recieved is::')
-        // console.log(poses_received)
-        // console.log('Fetching pose from server')
-        // return_max_score_pose(poses_received)
         keypoints_fetched=return_max_score_pose(poses_received)
-        // console.log('pose fetched is::')
-        // console.log(human_pose_fetched)
-
-
-       
     }
 
     function newFunction() {
