@@ -81,8 +81,7 @@ function setup() {
     var fetchedPose = [];
     poseNet.on('pose', function (results) {
         poses = results; //poses recieved  
-        console.log(poses)
-        
+        // console.log(poses)
     });
     // Hide the video element, and just show the canvas
     video.hide(); 
@@ -278,7 +277,7 @@ function drawSkeleton() {
             stroke('#14dfe2');
             strokeWeight(3);
             // line((partA.position.x/4)+25, (partA.position.y)/4,((partB.position.x)/4)+25, (partB.position.y)/4);
-            line((partA.position.x), (partA.position.y),((partB.position.x)), (partB.position.y));
+            line((partA.position.x * Rx), (partA.position.y * Ry),((partB.position.x * Rx)), (partB.position.y * Ry));
         }
     }
 }
