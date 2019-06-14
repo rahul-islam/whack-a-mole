@@ -44,7 +44,7 @@ const sendDataFrame = (poses,marker_id) => {
 var videoWidth = 640;
 var videoHeight = 480;
 
-var canvasWidth, canvasHeight = 0;
+var canvasWidth, canvasHeight, Rx, Ry = 0;
 var hostFeedCanvas;
 function setup() {
     // aspect ratio 4:3
@@ -53,6 +53,10 @@ function setup() {
 
     canvasWidth = screen.width;
     canvasHeight = screen.width * 0.75;
+
+    // https://stackoverflow.com/questions/45724955/find-new-coordinates-of-a-point-after-image-resize
+    Rx = canvasWidth/videoWidth
+    Ry = canvasHeight/videoHeight
 
     background(255)
     // canvas1 = createCanvas(canvas_width,canvas_height);
@@ -77,7 +81,7 @@ function setup() {
     var fetchedPose = [];
     poseNet.on('pose', function (results) {
         poses = results; //poses recieved  
-        // console.log(poses)
+        console.log(poses)
         
     });
     // Hide the video element, and just show the canvas
@@ -215,7 +219,7 @@ function drawKeypoints() {
                 fill(0, 255, 255);
                 noStroke();
                 // ellipse(((keypoint.position.x)/4)+25,(keypoint.position.y)/4,5,5);
-                ellipse(((keypoint.position.x)),(keypoint.position.y),10,10);
+                ellipse(((keypoint.position.x * Rx)),(keypoint.position.y * Ry),10,10);
                 // ellipse((keypoint.position.x)*(canvas_width/displayWidth),(keypoint.position.y-100)*(canvas_height/displayHeight),5,5);
                 // ellipse(keypoint.position.x-100/2, keypoint.position.y-100/2,5,5);
             }
@@ -236,10 +240,8 @@ function drawKeypoints_fetched() {
         if (keypoint.score > 0.2) {
             fill(0, 255, 0);
             noStroke();
-            console.log('keypoint position is')
-            console.log(keypoint.position.x)
             // ellipse(keypoint.position.x, keypoint.position.y, 10, 10);
-            ellipse(((keypoint.position.x)),(keypoint.position.y),5,5);
+            ellipse(((keypoint.position.x * Rx)),(keypoint.position.y * Ry),5,5);
         }
     }
     // }
