@@ -77,6 +77,7 @@ function setup() {
     poseVideoInstance = createCapture(VIDEO);
     poseVideoInstance.size(videoWidth,videoHeight)
 
+    $("#poseNetStatus").text('loading');
     poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
     var fetchedPose = [];
     poseNet.on('pose', function (results) {
