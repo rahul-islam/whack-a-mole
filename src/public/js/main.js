@@ -1,4 +1,4 @@
-var video, canvas, context, imageData, detector, canvas1, poseNet, poses, poseVideoInstance = [];
+var video, canvas, context, imageData, detector, canvas1, poseNet, poseVideoInstance, poses = [];
 var posit;
 var modelSize = 35.0; //millimeters
 
