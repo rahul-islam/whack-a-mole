@@ -1,4 +1,4 @@
-var video, canvas, context, imageData, detector, canvas1, poseNet, poses = [];
+var video, canvas, context, imageData, detector, canvas1, poseNet, poses, poseVideoInstance = [];
 var posit;
 var modelSize = 35.0; //millimeters
 
@@ -41,39 +41,39 @@ const sendDataFrame = (poses,marker_id) => {
 
 }
 
+var videoWidth = 640;
+var videoHeight = 480;
+
+var canvasWidth, canvasHeight = 0;
 var hostFeedCanvas;
 function setup() {
-    // alert(screen.width)
-    
-    // canvas1 = createCanvas(screen.width-50, 480);
-    if(displayWidth > 800)
-    {
-        canvas_width = 430
-    }
-    else
-    {
-        canvas_width = displayWidth-20
-    }
-    canvas_height = 500
+    // aspect ratio 4:3
+    // width x height
+    // 640 x 480
+
+    canvasWidth = screen.width;
+    canvasHeight = screen.width * 0.75;
+
     background(255)
     // canvas1 = createCanvas(canvas_width,canvas_height);
-    canvas1 = createCanvas(640,480);
+    canvas1 = createCanvas(canvasWidth, canvasHeight);
     var cent_x = (displayWidth - width) / 2;
     var cent_y = (displayHeight - height) / 2;
 
     canvas1.parent('myContainer');
     canvas = canvas1.canvas;
     context = canvas.getContext("2d");
-    canvas.width = 640
-    canvas.height = 480
+    canvas.width = canvasWidth
+    canvas.height = canvasHeight
 
+  
     video = createCapture(VIDEO);
-    console.log(video)
-    video.size(canvas.width,canvas.height);
-    // canvas.width = parseInt(canvas.style.width);
-    // canvas.height = parseInt(canvas.style.height);
-    // socket = socket.io.connect('http://localhost:3000')
-    poseNet = ml5.poseNet(video, modelLoaded);
+    video.size(canvasWidth, canvasHeight);
+
+    poseVideoInstance = createCapture(VIDEO);
+    poseVideoInstance.size(videoWidth,videoHeight)
+
+    poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
     var fetchedPose = [];
     poseNet.on('pose', function (results) {
         poses = results; //poses recieved  
@@ -82,7 +82,7 @@ function setup() {
     });
     // Hide the video element, and just show the canvas
     video.hide(); 
-
+    poseVideoInstance.hide()
     detector = new AR.Detector();
     posit = new POS.Posit(modelSize, canvas.width);
 
@@ -139,13 +139,15 @@ function modelLoaded() {
 
 function tick() {
     requestAnimationFrame(tick);
-    image(video, 0, 0, canvas.width, canvas.height);
-    imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-
 
     if(!!enrolled_marker){
+        image(video, 0, 0, videoWidth, videoHeight);
+        imageData = context.getImageData(0, 0, videoWidth, videoHeight);    
         clear();
-        image(video, 0, 0, canvas.width/6, canvas.height/6);
+        image(video, 0, 0, videoWidth/6, videoHeight/6);
+    } else {
+        image(video, 0, 0, canvas.width, canvas.height);
+        imageData = context.getImageData(0, 0, canvas.width, canvas.height);    
     }
     
     // if (!enrollButton)
