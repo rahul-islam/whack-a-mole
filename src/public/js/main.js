@@ -138,6 +138,7 @@ function return_max_score_pose(pose_obj)
 
 function modelLoaded() {
     console.log('Model Loaded!');
+    $("#poseNetStatus").text('loaded');
 }
 
 function tick() {
