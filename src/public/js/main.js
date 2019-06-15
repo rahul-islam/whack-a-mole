@@ -102,6 +102,7 @@ function return_max_score_pose(pose_obj)
     var keys = Object.keys(pose_obj)
     // console.log('keys are as follows:')
     console.log(keys)
+    console.log(pose_obj)
     var max_key;
     var max_score = 0;
     var max_index=0;
@@ -110,11 +111,19 @@ function return_max_score_pose(pose_obj)
         for(let j=0; j<pose_obj[keys[i]]['human'].length;j++)
         {
             id = pose_obj[keys[i]]['human'][j]['id']
+          
             if(id==enrolled_marker)
             {
-                score = pose_obj[keys[i]]['human'][j]['pose'][0].score
-                // console.log('score is:::')
-                // console.log(score)
+                console.log('Id is:::')
+                console.log(id)
+                console.log('human pose is')
+                console.log(pose_obj[keys[i]]['human'][j]['pose'][0]['pose'])
+                // if(poses[keys[i]]['human'][j]['pose'].length > 0)
+                // {
+                // score = pose_obj[keys[i]]['human'][j]['pose'][0].score
+                score = pose_obj[keys[i]]['human'][0]['pose'][0]['pose'].score
+                console.log('score is:::')
+                console.log(score)
                 if(parseFloat(score) > max_score)
                 {
                     max_key=keys[i]
@@ -124,6 +133,7 @@ function return_max_score_pose(pose_obj)
                     // console.log(max_score)
                     
                 }
+            // }
     
             }
             
@@ -131,7 +141,13 @@ function return_max_score_pose(pose_obj)
         }
    
     }
+    console.log('max key is')
+    console.log(max_key)
+    console.log('max sore is::')
+    console.log(max_score)
     max_pose = pose_obj[max_key]['human'][max_index]['pose'][0]
+    console.log('max pose is::')
+    console.log(max_pose['pose']['keypoints'].length)
     return max_pose
 
 }
@@ -235,9 +251,12 @@ function drawKeypoints_fetched() {
     // for (let i = 0; i < poses_received.length; i++) {
     // For each pose detected, loop through all the keypoints
     // let pose = poses_received[0].pose;
-    for (let j = 0; j < keypoints_fetched['keypoints'].length; j++) {
+    console.log(keypoints_fetched['pose']['keypoints'])
+    for (let j = 0; j < keypoints_fetched['pose']['keypoints'].length; j++) {
         // A keypoint is an object describing a body part (like rightArm or leftShoulder)
-        let keypoint = keypoints_fetched['keypoints'][j];
+        let keypoint = keypoints_fetched['pose']['keypoints'][j];
+        console.log('keypoint is')
+        console.log(keypoint)
         // Only draw an ellipse is the pose probability is bigger than 0.2
         if (keypoint.score > 0.2) {
             fill(0, 255, 0);

@@ -38,13 +38,13 @@ io.on('connection', (socket) => {
   socket.on('dataframe', (data) => {
     if (!socket.arucoId) return;
     univesalDataMap[socket.arucoId] = data
-
+    console.log(univesalDataMap)
     // emit in user channel also
     socket.emit('dataframe', univesalDataMap);
 
     // we tell the client to execute 'dataframe'
-    socket.broadcast.emit('dataframe', univesalDataMap);
-    // fs.appendFile("./pose_test_5.json", JSON.stringify(univesalDataMap, null, 4), (err) => {
+    // socket.broadcast.emit('dataframe', univesalDataMap);
+    // fs.appendFile("./pose_test_6.json", JSON.stringify(univesalDataMap, null, 4), (err) => {
     //   if (err) {
     //       console.error(err);
     //       return;
