@@ -60,3 +60,15 @@
 .btn-group {
   width: -webkit-fill-available;
 }
+
+.btn-group button:hover {
+  background-color: #030853;
+}
+
+.btn-group{
+  position: absolute;
+  top: 50%;
+  /* left: 50%; */
+  margin-top: +20px;
+  margin-left: +50px;
+}
