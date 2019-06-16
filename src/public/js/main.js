@@ -198,10 +198,12 @@ function tick() {
         drawId(markers); //marker id written
         drawKeypoints(); //pose keypoints drawn
         drawSkeleton(); //pose skeleton drawn    
+         //fetched skeleton is drawn
     }
 
     if (Object.keys(keypoints_fetched).length != 0 && keypoints_fetched.constructor === Object != 0) {
         drawKeypoints_fetched();  //check if poses_recieved.length is not 0 on pressing fetch_button and draw them
+        drawSkeleton_fetched();
     }
 
     if (sendPoseButton) {
@@ -302,6 +304,23 @@ function drawSkeleton() {
             line((partA.position.x * Rx), (partA.position.y * Ry),((partB.position.x * Rx)), (partB.position.y * Ry));
         }
     }
+}
+
+function drawSkeleton_fetched() {
+    // Loop through all the skeletons detected
+    // for (let i = 0; i < poses.length; i++) {
+        // let skeleton = poses[i].skeleton;
+        let skeleton = keypoints_fetched.skeleton;
+        // For every skeleton, loop through all body connections
+        for (let j = 0; j < skeleton.length; j++) {
+            let partA = skeleton[j][0];
+            let partB = skeleton[j][1];
+            stroke('#14dfe2');
+            strokeWeight(3);
+            // line((partA.position.x/4)+25, (partA.position.y)/4,((partB.position.x)/4)+25, (partB.position.y)/4);
+            line((partA.position.x * Rx), (partA.position.y * Ry),((partB.position.x * Rx)), (partB.position.y * Ry));
+        }
+    // }
 }
 
 function drawCorners(markers) {
