@@ -1,4 +1,3 @@
-
 #### Pre-requisite
 1. [NodeJS: >= v8](https://nodejs.org/dist/latest-v8.x/)
 2. [Yarn](https://yarnpkg.com/en/docs/install)
@@ -6,7 +5,7 @@
 #### How to run server
 1. Install all dependencies
 
-> `$  yarn install`
+> `$  npm install`
 
 2. Set environment
 
@@ -18,7 +17,7 @@
 
 3. Start server
 
-> `$  yarn start`
+> `$  npm start`
 
 
 
