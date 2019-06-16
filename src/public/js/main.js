@@ -99,7 +99,7 @@ function setup() {
 
 function return_max_score_pose(pose_obj)
 {
-    var keys = Object.keys(pose_obj)
+    var keys = Object.keys(pose_obj)  //All keys in pose_fetched obj
     // console.log('keys are as follows:')
     console.log(keys)
     console.log(pose_obj)
