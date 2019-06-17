@@ -3,7 +3,7 @@ var posit;
 var modelSize = 35.0; //millimeters
 
 var socket = io();
-var canvas_width,canvas_height;
+var canvas_width, canvas_height;
 // var socket3 = io.connect('http://localhost:3000/getusermedia.html');
 var enrollButton = false; //Enroll button. Pressed to enrol a marker. 
 var checkButton = false; // Check button. On clicking, the main dataframe on the server is checked for registered aruco id
@@ -21,22 +21,62 @@ var keypoints_fetched = {};
 var human_pose_fetched = {};
 
 var enrolledMarker;
-// var socket;
-// socket.emit('register aruco', 'A')
+
+function getDistance(x1, y1, x2, y2) {
+    var x = x2 - x1
+    var y = y2 - y1
+
+    var mag = Math.sqrt(x * x + y * y)
+
+    return mag
+}
+
+
+
 socket.on('dataframe', (data) => {
     // console.log(socket.arucoId);
-    poses_received  = data
-    console.log('enrolledMarker is:::')
-    // console.log(enrolledMarker)
+    poses_received = data
+    // console.log('enrolledMarker is:::', data)
+    // // console.log(enrolledMarker)
+
+    for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+            const poses = data[key].human;
+            for (let index = 0; index < poses.length; index++) {
+                const pose = poses[index];
+                if(pose.id == enrolledMarker){
+                    console.info(key, 'has', enrolledMarker)
+                    keypoints_fetched = pose;
+                    $("#poseSharedBy").text(key);
+                    break;
+                }
+            }
+        }
+    }
 
 });
 
-const sendDataFrame = (poses,marker_id) => {
+const sendDataFrame = (poses, markers) => {
+  
+    poses.forEach(pose => {
+        var markerToAttach, markerToAttachDistance = 10000;
+        for (let index = 0; index < markers.length; index++) {
+            var marker = markers[index];
+            var dist = getDistance(pose.pose.nose.x, pose.pose.nose.y, marker.corners[0].x, marker.corners[0].y)
+            if(dist < markerToAttachDistance) {
+                markerToAttachDistance = dist;
+                markerToAttach = marker.id
+            }     
+        }
+        pose.id = markerToAttach
+        return pose
+    });
+
+    // console.log(markers)
+
     socket.emit('dataframe', {
-        human: [{
-            pose: poses,
-            id : marker_id
-        }]
+        human: poses,
+        aruco: markers
     });
 
 }
@@ -55,8 +95,8 @@ function setup() {
     canvasHeight = screen.width * 0.75;
 
     // https://stackoverflow.com/questions/45724955/find-new-coordinates-of-a-point-after-image-resize
-    Rx = canvasWidth/videoWidth
-    Ry = canvasHeight/videoHeight
+    Rx = canvasWidth / videoWidth
+    Ry = canvasHeight / videoHeight
 
     background(255)
     // canvas1 = createCanvas(canvas_width,canvas_height);
@@ -70,12 +110,12 @@ function setup() {
     canvas.width = canvasWidth
     canvas.height = canvasHeight
 
-  
+
     video = createCapture(VIDEO);
     video.size(canvasWidth, canvasHeight);
 
     poseVideoInstance = createCapture(VIDEO);
-    poseVideoInstance.size(videoWidth,videoHeight)
+    poseVideoInstance.size(videoWidth, videoHeight)
 
     $("#poseNetStatus").text('loading');
     poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
@@ -85,7 +125,7 @@ function setup() {
         // console.log(poses)
     });
     // Hide the video element, and just show the canvas
-    video.hide(); 
+    video.hide();
     poseVideoInstance.hide()
     detector = new AR.Detector();
     posit = new POS.Posit(modelSize, canvas.width);
@@ -97,57 +137,52 @@ function setup() {
 
 
 
-function return_max_score_pose(pose_obj)
-{
+function return_max_score_pose(pose_obj) {
     var keys = Object.keys(pose_obj)  //All keys in pose_fetched obj
     // console.log('keys are as follows:')
-    console.log(keys)
-    console.log(pose_obj)
+    // console.log(keys)
+    // console.log(pose_obj)
     var max_key;
     var max_score = 0;
-    var max_index=0;
-    for (let i=0 ; i<keys.length ; i++)
-    {
-        for(let j=0; j<pose_obj[keys[i]]['human'].length;j++)
-        {
+    var max_index = 0;
+    for (let i = 0; i < keys.length; i++) {
+        for (let j = 0; j < pose_obj[keys[i]]['human'].length; j++) {
             id = pose_obj[keys[i]]['human'][j]['id']
-          
-            if(id==enrolledMarker)
-            {
-                console.log('Id is:::')
-                console.log(id)
-                console.log('human pose is')
-                console.log(pose_obj[keys[i]]['human'][j]['pose'][0]['pose'])
+
+            if (id == enrolledMarker) {
+                // console.log('Id is:::')
+                // console.log(id)
+                // console.log('human pose is')
+                // console.log(pose_obj[keys[i]]['human'][j]['pose'][0]['pose'])
                 // if(poses[keys[i]]['human'][j]['pose'].length > 0)
                 // {
                 // score = pose_obj[keys[i]]['human'][j]['pose'][0].score
                 score = pose_obj[keys[i]]['human'][0]['pose'][0]['pose'].score
-                console.log('score is:::')
-                console.log(score)
-                if(parseFloat(score) > max_score)
-                {
-                    max_key=keys[i]
+                // console.log('score is:::')
+                // console.log(score)
+                if (parseFloat(score) > max_score) {
+                    max_key = keys[i]
                     max_score = score
-                    max_index =j
+                    max_index = j
                     // console.log('new score is::')
                     // console.log(max_score)
-                    
+
                 }
-            // }
-    
+                // }
+
             }
-            
-            
+
+
         }
-   
+
     }
-    console.log('max key is')
-    console.log(max_key)
-    console.log('max sore is::')
-    console.log(max_score)
+    // console.log('max key is')
+    // console.log(max_key)
+    // console.log('max sore is::')
+    // console.log(max_score)
     max_pose = pose_obj[max_key]['human'][max_index]['pose'][0]
-    console.log('max pose is::')
-    console.log(max_pose['pose']['keypoints'].length)
+    // console.log('max pose is::')
+    // console.log(max_pose['pose']['keypoints'].length)
     return max_pose
 
 }
@@ -159,57 +194,71 @@ function modelLoaded() {
     $("#poseNetStatus").toggleClass('badge-secondary badge-primary');
 }
 
+function arucoInView(markers) {
+    let arucoList = '';
+    markers.forEach(marker => {
+        arucoList += marker.id + ','       
+    });
+    $("#arucoInView").text(arucoList);
+}
+
 function tick() {
     requestAnimationFrame(tick);
-
-    if(!!enrolledMarker){
-        image(video, 0, 0, videoWidth, videoHeight);
-        imageData = context.getImageData(0, 0, videoWidth, videoHeight);    
+    var markers = []; 
+    if (!!enrolledMarker) {
+        image(poseVideoInstance, 0, 0, canvas.width, canvas.height);
+        imageData = context.getImageData(0, 0, videoWidth, videoHeight );
+        markers = detector.detect(imageData);
         clear();
-        image(video, 0, 0, videoWidth/6, videoHeight/6);
+        image(poseVideoInstance, 0, 0, videoWidth / 6, videoHeight / 6);
     } else {
         image(video, 0, 0, canvas.width, canvas.height);
-        imageData = context.getImageData(0, 0, canvas.width, canvas.height);    
+        imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        markers = detector.detect(imageData);
     }
-    
-    var markers = detector.detect(imageData); //markers detected at this step
 
-    if(enrollButton){
-        if(markers.length == 1){
-            marker_id = markers[markers.length-1].id.toString();
-            socket.emit('register aruco',marker_id)
+    arucoInView(markers);
+    
+    if (enrollButton) {
+        if (markers.length == 1) {
+            marker_id = markers[markers.length - 1].id.toString();
+            socket.emit('register aruco', marker_id)
             enrolledMarker = marker_id.toString()
             enrollButton = false
             toggleControl();
             $("#registeredAruco").text(enrolledMarker);
             console.info('Marker Registered:\t', enrolledMarker);
-        } else{
+            sendPoseButton = true;
+            fetchPoseButton = true;
+        } else {
             console.info('multiple marker in same frame')
         }
     }
 
-    if(!enrolledMarker){
+    if (!enrolledMarker) {
         drawCorners(markers); //marker corners drawn
         drawId(markers); //marker id written
         drawKeypoints(); //pose keypoints drawn
         drawSkeleton(); //pose skeleton drawn    
-         //fetched skeleton is drawn
+        //fetched skeleton is drawn
     }
 
     if (Object.keys(keypoints_fetched).length != 0 && keypoints_fetched.constructor === Object != 0) {
         drawKeypoints_fetched();  //check if poses_recieved.length is not 0 on pressing fetch_button and draw them
         drawSkeleton_fetched();
     }
-
-    if (sendPoseButton) {
-        sendDataFrame(poses,marker_id)
+    // sendDataFrame(poses, markers)
+    if (sendPoseButton && markers.length > 0) {
+        sendDataFrame(poses, markers)
     }
     if (fetchPoseButton) {
-        keypoints_fetched=return_max_score_pose(poses_received)
+        console.log("Good");
+        
+        // keypoints_fetched = return_max_score_pose(poses_received)
     }
 
     function newFunction() {
-        console.log(poses);
+        // console.log(poses);
     }
 }
 
@@ -234,7 +283,7 @@ function drawKeypoints() {
                 fill(0, 255, 255);
                 noStroke();
                 // ellipse(((keypoint.position.x)/4)+25,(keypoint.position.y)/4,5,5);
-                ellipse(((keypoint.position.x * Rx)),(keypoint.position.y * Ry),10,10);
+                ellipse(((keypoint.position.x * Rx)), (keypoint.position.y * Ry), 10, 10);
                 // ellipse((keypoint.position.x)*(canvas_width/displayWidth),(keypoint.position.y-100)*(canvas_height/displayHeight),5,5);
                 // ellipse(keypoint.position.x-100/2, keypoint.position.y-100/2,5,5);
             }
@@ -248,18 +297,18 @@ function drawKeypoints_fetched() {
     // for (let i = 0; i < poses_received.length; i++) {
     // For each pose detected, loop through all the keypoints
     // let pose = poses_received[0].pose;
-    console.log(keypoints_fetched['pose']['keypoints'])
+    // console.log(keypoints_fetched['pose']['keypoints'])
     for (let j = 0; j < keypoints_fetched['pose']['keypoints'].length; j++) {
         // A keypoint is an object describing a body part (like rightArm or leftShoulder)
         let keypoint = keypoints_fetched['pose']['keypoints'][j];
-        console.log('keypoint is')
-        console.log(keypoint)
+        // console.log('keypoint is')
+        // console.log(keypoint)
         // Only draw an ellipse is the pose probability is bigger than 0.2
         if (keypoint.score > 0.2) {
             fill(0, 255, 0);
             noStroke();
             // ellipse(keypoint.position.x, keypoint.position.y, 10, 10);
-            ellipse(((keypoint.position.x * Rx)),(keypoint.position.y * Ry),5,5);
+            ellipse(((keypoint.position.x * Rx)), (keypoint.position.y * Ry), 5, 5);
         }
     }
     // }
@@ -273,7 +322,7 @@ var pointSize = 3;
 // {
 //     // background(0)
 //     image(video, 0, 0,canvas_width/4,canvas_height/4);
-    
+
 //     // drawCorners(markers); //marker corners drawn
 //     // drawId(markers); //marker id written
 //     // drawKeypoints(); //pose keypoints drawn
@@ -296,7 +345,7 @@ function drawSkeleton() {
             stroke('#14dfe2');
             strokeWeight(3);
             // line((partA.position.x/4)+25, (partA.position.y)/4,((partB.position.x)/4)+25, (partB.position.y)/4);
-            line((partA.position.x * Rx), (partA.position.y * Ry),((partB.position.x * Rx)), (partB.position.y * Ry));
+            line((partA.position.x * Rx), (partA.position.y * Ry), ((partB.position.x * Rx)), (partB.position.y * Ry));
         }
     }
 }
@@ -304,17 +353,17 @@ function drawSkeleton() {
 function drawSkeleton_fetched() {
     // Loop through all the skeletons detected
     // for (let i = 0; i < poses.length; i++) {
-        // let skeleton = poses[i].skeleton;
-        let skeleton = keypoints_fetched.skeleton;
-        // For every skeleton, loop through all body connections
-        for (let j = 0; j < skeleton.length; j++) {
-            let partA = skeleton[j][0];
-            let partB = skeleton[j][1];
-            stroke('#14dfe2');
-            strokeWeight(3);
-            // line((partA.position.x/4)+25, (partA.position.y)/4,((partB.position.x)/4)+25, (partB.position.y)/4);
-            line((partA.position.x * Rx), (partA.position.y * Ry),((partB.position.x * Rx)), (partB.position.y * Ry));
-        }
+    // let skeleton = poses[i].skeleton;
+    let skeleton = keypoints_fetched.skeleton;
+    // For every skeleton, loop through all body connections
+    for (let j = 0; j < skeleton.length; j++) {
+        let partA = skeleton[j][0];
+        let partB = skeleton[j][1];
+        stroke('#14dfe2');
+        strokeWeight(3);
+        // line((partA.position.x/4)+25, (partA.position.y)/4,((partB.position.x)/4)+25, (partB.position.y)/4);
+        line((partA.position.x * Rx), (partA.position.y * Ry), ((partB.position.x * Rx)), (partB.position.y * Ry));
+    }
     // }
 }
 
@@ -352,7 +401,7 @@ function Enrollment(marker_id, pose_lenth) {
         //  alert(user_Data);
     }
     else {
-        console.log(pose_lenth)
+        // console.log(pose_lenth)
         alert(marker_id + ' pose detected')
         // user_Data[marker_id]=ip;
         // alert(user_Data);
@@ -486,6 +535,6 @@ function toggleControl() {
 }
 
 function restart() {
-    toggleControl() 
+    toggleControl()
     location.reload(true);
 }

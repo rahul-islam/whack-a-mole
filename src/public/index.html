@@ -35,8 +35,13 @@
 
   <div class="container-fluid">
     <div class="row" id="infoLayer">
-      <h6>Registered Aruco : <span id="registeredAruco" class="badge badge-secondary"></span></h6>
-      <h6>Pose Net : <span id="poseNetStatus" class="badge badge-secondary"></span></h6>
+      <li>
+        <h6>Registered Aruco : <span id="registeredAruco" class="badge badge-secondary"></span></h6>
+        <h6>Aruco in View : <span id="arucoInView" class="badge badge-secondary"></span></h6>
+        <h6>Pose Shared By : <span id="poseSharedBy" class="badge badge-secondary"></span></h6>
+        <h6>Pose Net : <span id="poseNetStatus" class="badge badge-secondary"></span></h6>
+      </li>
+
     </div>
     <div class="row" id="visLayer">
       <div id='myContainer' style="background: #e7efe8;"></div>
@@ -45,8 +50,8 @@
       <div class="btn-group" role="group" aria-label="Basic example">
         <button id="enrollButton" class="btn btn-primary" onclick="change()">Enroll</button>
         <!-- <button id="checkButton"  class="btn btn-secondary" onclick="check()">Check</button> -->
-        <button id="sendPoseButton" class="btn btn-primary" onclick="sendPose()">Send Pose</button>
-        <button id="fetchPoseButton" class="btn btn-secondary" onclick="fetchPose()">Fetch Pose</button>
+        <!-- <button id="sendPoseButton" class="btn btn-primary" onclick="sendPose()">Send Pose</button>
+        <button id="fetchPoseButton" class="btn btn-secondary" onclick="fetchPose()">Fetch Pose</button> -->
         <button id="restartButton" class="btn btn-danger" onclick="restart()">Restart</button>
 
       </div>
