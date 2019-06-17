@@ -20,14 +20,14 @@ var poses_received = {}; //pose recieved from server using fetchPoseButton and s
 var keypoints_fetched = {};
 var human_pose_fetched = {};
 
-var enrolled_marker;
+var enrolledMarker;
 // var socket;
 // socket.emit('register aruco', 'A')
 socket.on('dataframe', (data) => {
     // console.log(socket.arucoId);
     poses_received  = data
-    console.log('enrolled_marker is:::')
-    // console.log(enrolled_marker)
+    console.log('enrolledMarker is:::')
+    // console.log(enrolledMarker)
 
 });
 
@@ -112,7 +112,7 @@ function return_max_score_pose(pose_obj)
         {
             id = pose_obj[keys[i]]['human'][j]['id']
           
-            if(id==enrolled_marker)
+            if(id==enrolledMarker)
             {
                 console.log('Id is:::')
                 console.log(id)
@@ -162,7 +162,7 @@ function modelLoaded() {
 function tick() {
     requestAnimationFrame(tick);
 
-    if(!!enrolled_marker){
+    if(!!enrolledMarker){
         image(video, 0, 0, videoWidth, videoHeight);
         imageData = context.getImageData(0, 0, videoWidth, videoHeight);    
         clear();
@@ -172,28 +172,23 @@ function tick() {
         imageData = context.getImageData(0, 0, canvas.width, canvas.height);    
     }
     
-    // if (!enrollButton)
-    //     clear();
-
     var markers = detector.detect(imageData); //markers detected at this step
 
-    if(markers.length > 0)
-    {
-        marker_id = markers[markers.length-1].id.toString();
-        // console.log(marker_id)
-        if(enrollButton)
-        {
-            // Enrollment(markers[i].id, 0)
+    if(enrollButton){
+        if(markers.length == 1){
+            marker_id = markers[markers.length-1].id.toString();
             socket.emit('register aruco',marker_id)
-            enrolled_marker = marker_id.toString()
+            enrolledMarker = marker_id.toString()
             enrollButton = false
             toggleControl();
-            $("#registeredAruco").text(enrolled_marker);
-            // video.show()
+            $("#registeredAruco").text(enrolledMarker);
+            console.info('Marker Registered:\t', enrolledMarker);
+        } else{
+            console.info('multiple marker in same frame')
         }
-    }   
+    }
 
-    if(!enrolled_marker){
+    if(!enrolledMarker){
         drawCorners(markers); //marker corners drawn
         drawId(markers); //marker id written
         drawKeypoints(); //pose keypoints drawn
