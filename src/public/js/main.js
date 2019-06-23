@@ -14,15 +14,20 @@ var socket2 = io(); // ip transmitted
 // var socket3 = io();
 var user_Data = {}; //contains marker id and corresponding pose value
 var user_pose_Dat = {}; //json used to emit ip,pose pair
-
+var video_path = '';
 var user_ip; // ip of user stored in variable using getIP function
 var poses_received = {}; //pose recieved from server using fetchPoseButton and socket 2
 var keypoints_fetched = {};
 var human_pose_fetched = {};
+var scale_width = 0;
+var scale_height = 0;
 
+var norm_X = 0.0;
+var norm_Y = 0.0;
 var enrolledMarker;
 
-function getDistance(x1, y1, x2, y2) {
+function getDistance(x1, y1, x2, y2) 
+{
     var x = x2 - x1
     var y = y2 - y1
 
@@ -109,24 +114,40 @@ function setup() {
     context = canvas.getContext("2d");
     canvas.width = canvasWidth
     canvas.height = canvasHeight
+    vid = createVideo('/assets/aruco_test.mp4',
+    vidLoad
+    );
 
+    vid2 = createVideo('/assets/aruco_test.mp4',
+    vidLoad
+    );
 
-    video = createCapture(VIDEO);
-    video.size(canvasWidth, canvasHeight);
+    // video.size(canvasWidth, canvasHeight);
+    // video.size(canvasWidth, canvasHeight);
+    vid.size(videoWidth, videoHeight);
+    vid2.size(videoWidth, videoHeight);
+    // video = createCapture(VIDEO);
+    // video.size(canvasWidth, canvasHeight);
 
-    poseVideoInstance = createCapture(VIDEO);
-    poseVideoInstance.size(videoWidth, videoHeight)
+    // poseVideoInstance = createCapture(VIDEO);
+    // poseVideoInstance.size(videoWidth, videoHeight)
 
     $("#poseNetStatus").text('loading');
-    poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
+    poseNet = ml5.poseNet(vid, modelLoaded);
     var fetchedPose = [];
     poseNet.on('pose', function (results) {
         poses = results; //poses recieved  
         // console.log(poses)
     });
     // Hide the video element, and just show the canvas
-    video.hide();
-    poseVideoInstance.hide()
+    // video.hide();
+    // poseVideoInstance.hide()
+  
+    
+
+
+    vid.hide();
+    vid2.hide();
     detector = new AR.Detector();
     posit = new POS.Posit(modelSize, canvas.width);
 
@@ -136,7 +157,12 @@ function setup() {
 }
 
 
-
+function vidLoad() {
+    vid.loop();
+    vid.volume(0);
+    vid2.loop();
+    vid2.volume(0);
+  }
 function return_max_score_pose(pose_obj) {
     var keys = Object.keys(pose_obj)  //All keys in pose_fetched obj
     // console.log('keys are as follows:')
@@ -204,21 +230,27 @@ function arucoInView(markers) {
 
 function tick() {
     requestAnimationFrame(tick);
+    vid.loop();
+    // vid.volume(0);
+    vid2.loop()
     var markers = []; 
     if (!!enrolledMarker) {
-        image(poseVideoInstance, 0, 0, canvas.width, canvas.height);
+        // image(vid, 0, 0, canvas.width, canvas.height);
+        image(vid, 0, 0,videoWidth,videoHeight);
         imageData = context.getImageData(0, 0, videoWidth, videoHeight );
         markers = detector.detect(imageData);
         clear();
-        image(poseVideoInstance, 0, 0, videoWidth / 6, videoHeight / 6);
+        image(vid, 0, 0, videoWidth / 6, videoHeight / 6);
     } else {
-        image(video, 0, 0, canvas.width, canvas.height);
+        // image(vid2, 0, 0, canvas.width, canvas.height);
+        image(vid2, 0, 0,videoWidth,videoHeight);
         imageData = context.getImageData(0, 0, canvas.width, canvas.height);
         markers = detector.detect(imageData);
     }
 
     arucoInView(markers);
-    
+    // vid.loop();
+    // vid.volume(0);
     if (enrollButton) {
         if (markers.length == 1) {
             marker_id = markers[markers.length - 1].id.toString();
@@ -262,7 +294,12 @@ function tick() {
     }
 }
 
+function normalize_coords(x,y)
+{
+    norm_X = x/canvasWidth;
+    norm_Y = y/canvasHeight;
 
+}
 
 // function snapshot() {
 //     context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -283,7 +320,11 @@ function drawKeypoints() {
                 fill(0, 255, 255);
                 noStroke();
                 // ellipse(((keypoint.position.x)/4)+25,(keypoint.position.y)/4,5,5);
-                ellipse(((keypoint.position.x * Rx)), (keypoint.position.y * Ry), 10, 10);
+                normalize_coords(keypoint.position.x,keypoint.position.y);
+                // console.log('norm x is::',norm_X)
+                // console.log('norm y is::',norm_Y)
+                ellipse(((norm_X * Rx*100)), (norm_Y * Ry*100), 10, 10);
+                // ellipse(((keypoint.position.x * Rx)), (keypoint.position.y * Ry), 10, 10);
                 // ellipse((keypoint.position.x)*(canvas_width/displayWidth),(keypoint.position.y-100)*(canvas_height/displayHeight),5,5);
                 // ellipse(keypoint.position.x-100/2, keypoint.position.y-100/2,5,5);
             }
@@ -291,6 +332,10 @@ function drawKeypoints() {
     }
 }
 
+// function normalize_keypoints()
+// {
+
+// }
 
 function drawKeypoints_fetched() {
     // Loop through all the poses detected
