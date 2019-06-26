@@ -19,10 +19,15 @@ var user_ip; // ip of user stored in variable using getIP function
 var poses_received = {}; //pose recieved from server using fetchPoseButton and socket 2
 var keypoints_fetched = {};
 var human_pose_fetched = {};
+var scale_width = 0;
+var scale_height = 0;
 
+// var norm_X = 0.0;
+// var norm_Y = 0.0;
 var enrolledMarker;
 
-function getDistance(x1, y1, x2, y2) {
+function getDistance(x1, y1, x2, y2) 
+{
     var x = x2 - x1
     var y = y2 - y1
 
@@ -262,7 +267,14 @@ function tick() {
     }
 }
 
+function normalize_coords(x,y)
+{
+    var norm_X = x/canvasWidth;
+    var norm_Y = y/canvasHeight;
+    // console.log('norm_X is::',norm_X)
+    return [norm_X,norm_Y];
 
+}
 
 // function snapshot() {
 //     context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -283,7 +295,16 @@ function drawKeypoints() {
                 fill(0, 255, 255);
                 noStroke();
                 // ellipse(((keypoint.position.x)/4)+25,(keypoint.position.y)/4,5,5);
-                ellipse(((keypoint.position.x * Rx)), (keypoint.position.y * Ry), 10, 10);
+                var x_norm
+                var y_norm;
+                var norm_coords;
+                norm_coords = normalize_coords(keypoint.position.x,keypoint.position.y);
+                x_norm = norm_coords[0];
+                y_norm = norm_coords[1];
+                // console.log('norm x is::',x_norm)
+                // console.log('norm y is::',y_norm)
+                ellipse((x_norm * Rx*100), (y_norm * Ry*100), 10, 10);
+                // ellipse(((keypoint.position.x * Rx)), (keypoint.position.y * Ry), 10, 10);
                 // ellipse((keypoint.position.x)*(canvas_width/displayWidth),(keypoint.position.y-100)*(canvas_height/displayHeight),5,5);
                 // ellipse(keypoint.position.x-100/2, keypoint.position.y-100/2,5,5);
             }
@@ -291,6 +312,10 @@ function drawKeypoints() {
     }
 }
 
+// function normalize_keypoints()
+// {
+
+// }
 
 function drawKeypoints_fetched() {
     // Loop through all the poses detected
@@ -308,7 +333,13 @@ function drawKeypoints_fetched() {
             fill(0, 255, 0);
             noStroke();
             // ellipse(keypoint.position.x, keypoint.position.y, 10, 10);
-            ellipse(((keypoint.position.x * Rx)), (keypoint.position.y * Ry), 5, 5);
+            var x_norm_fetched;
+            var y_norm_feteched;
+            var norm_coords_fetched;
+            norm_coords_fetched = normalize_coords(keypoint.position.x,keypoint.position.y);
+            x_norm_fetched = norm_coords_fetched[0];
+            y_norm_feteched = norm_coords_fetched[1];
+            ellipse((x_norm_fetched * Rx*100)+100, (y_norm_feteched* Ry*100)+100, 10, 10);
         }
     }
     // }
@@ -345,7 +376,13 @@ function drawSkeleton() {
             stroke('#14dfe2');
             strokeWeight(3);
             // line((partA.position.x/4)+25, (partA.position.y)/4,((partB.position.x)/4)+25, (partB.position.y)/4);
-            line((partA.position.x * Rx), (partA.position.y * Ry), ((partB.position.x * Rx)), (partB.position.y * Ry));
+           
+            var partA_norm;
+            var partB_norm;
+            partA_norm = normalize_coords(partA.position.x,partA.position.y);
+            partB_norm = normalize_coords(partB.position.x,partB.position.y)
+            // line((partA.position.x * Rx), (partA.position.y * Ry), ((partB.position.x * Rx)), (partB.position.y * Ry));
+            line((partA_norm[0] * Rx*100), (partA_norm[1] * Ry*100), ((partB_norm[0] * Rx*100)), (partB_norm[1] * Ry*100));
         }
     }
 }
@@ -362,7 +399,14 @@ function drawSkeleton_fetched() {
         stroke('#14dfe2');
         strokeWeight(3);
         // line((partA.position.x/4)+25, (partA.position.y)/4,((partB.position.x)/4)+25, (partB.position.y)/4);
-        line((partA.position.x * Rx), (partA.position.y * Ry), ((partB.position.x * Rx)), (partB.position.y * Ry));
+        // line((partA.position.x * Rx), (partA.position.y * Ry), ((partB.position.x * Rx)), (partB.position.y * Ry));
+      
+        var partA_norm_fetched;
+        var partB_norm_fetched;
+        partA_norm_fetched = normalize_coords(partA.position.x,partA.position.y);
+        partB_norm_fetched = normalize_coords(partB.position.x,partB.position.y)
+        // line((partA.position.x * Rx), (partA.position.y * Ry), ((partB.position.x * Rx)), (partB.position.y * Ry));
+        line((partA_norm_fetched[0] * Rx*100)+100, (partA_norm_fetched[1] * Ry*100)+100, ((partB_norm_fetched[0] * Rx*100)+100), (partB_norm_fetched[1] * Ry*100)+100)
     }
     // }
 }
