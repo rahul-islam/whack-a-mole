@@ -19,8 +19,8 @@ var user_ip; // ip of user stored in variable using getIP function
 var poses_received = {}; //pose recieved from server using fetchPoseButton and socket 2
 var keypoints_fetched = {};
 var human_pose_fetched = {};
-var scale_x = 0;
-var scale_y = 0;
+var scale_x = 100;
+var scale_y = 100;
 
 // var norm_X = 0.0;
 // var norm_Y = 0.0;
