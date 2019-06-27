@@ -19,8 +19,8 @@ var user_ip; // ip of user stored in variable using getIP function
 var poses_received = {}; //pose recieved from server using fetchPoseButton and socket 2
 var keypoints_fetched = {};
 var human_pose_fetched = {};
-var scale_width = 0;
-var scale_height = 0;
+var scale_x = 0;
+var scale_y = 0;
 
 // var norm_X = 0.0;
 // var norm_Y = 0.0;
@@ -303,7 +303,7 @@ function drawKeypoints() {
                 y_norm = norm_coords[1];
                 // console.log('norm x is::',x_norm)
                 // console.log('norm y is::',y_norm)
-                ellipse((x_norm * Rx*100), (y_norm * Ry*100), 10, 10);
+                ellipse((x_norm * Rx*scale_x), (y_norm * Ry*scale_y), 10, 10);
                 // ellipse(((keypoint.position.x * Rx)), (keypoint.position.y * Ry), 10, 10);
                 // ellipse((keypoint.position.x)*(canvas_width/displayWidth),(keypoint.position.y-100)*(canvas_height/displayHeight),5,5);
                 // ellipse(keypoint.position.x-100/2, keypoint.position.y-100/2,5,5);
@@ -339,7 +339,7 @@ function drawKeypoints_fetched() {
             norm_coords_fetched = normalize_coords(keypoint.position.x,keypoint.position.y);
             x_norm_fetched = norm_coords_fetched[0];
             y_norm_feteched = norm_coords_fetched[1];
-            ellipse((x_norm_fetched * Rx*100)+100, (y_norm_feteched* Ry*100)+100, 10, 10);
+            ellipse((x_norm_fetched * Rx*scale_x)+100, (y_norm_feteched* Ry*scale_y)+100, 10, 10);
         }
     }
     // }
@@ -382,7 +382,7 @@ function drawSkeleton() {
             partA_norm = normalize_coords(partA.position.x,partA.position.y);
             partB_norm = normalize_coords(partB.position.x,partB.position.y)
             // line((partA.position.x * Rx), (partA.position.y * Ry), ((partB.position.x * Rx)), (partB.position.y * Ry));
-            line((partA_norm[0] * Rx*100), (partA_norm[1] * Ry*100), ((partB_norm[0] * Rx*100)), (partB_norm[1] * Ry*100));
+            line((partA_norm[0] * Rx*scale_x), (partA_norm[1] * Ry*scale_y), ((partB_norm[0] * Rx*scale_x)), (partB_norm[1] * Ry*scale_y));
         }
     }
 }
@@ -406,7 +406,7 @@ function drawSkeleton_fetched() {
         partA_norm_fetched = normalize_coords(partA.position.x,partA.position.y);
         partB_norm_fetched = normalize_coords(partB.position.x,partB.position.y)
         // line((partA.position.x * Rx), (partA.position.y * Ry), ((partB.position.x * Rx)), (partB.position.y * Ry));
-        line((partA_norm_fetched[0] * Rx*100)+100, (partA_norm_fetched[1] * Ry*100)+100, ((partB_norm_fetched[0] * Rx*100)+100), (partB_norm_fetched[1] * Ry*100)+100)
+        line((partA_norm_fetched[0] * Rx*scale_x)+100, (partA_norm_fetched[1] * Ry*scale_y)+100, ((partB_norm_fetched[0] * Rx*scale_x)+100), (partB_norm_fetched[1] * Ry*scale_y)+100)
     }
     // }
 }
