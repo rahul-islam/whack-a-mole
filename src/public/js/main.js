@@ -303,7 +303,9 @@ function drawKeypoints() {
                 y_norm = norm_coords[1];
                 // console.log('norm x is::',x_norm)
                 // console.log('norm y is::',y_norm)
-                ellipse((x_norm * Rx*scale_x), (y_norm * Ry*scale_y), 10, 10);
+                var scale_kp_x = canvas.width
+                var scale_kp_y = canvas.height
+                ellipse((x_norm * Rx*scale_kp_x), (y_norm * Ry*scale_kp_y), 10, 10);
                 // ellipse(((keypoint.position.x * Rx)), (keypoint.position.y * Ry), 10, 10);
                 // ellipse((keypoint.position.x)*(canvas_width/displayWidth),(keypoint.position.y-100)*(canvas_height/displayHeight),5,5);
                 // ellipse(keypoint.position.x-100/2, keypoint.position.y-100/2,5,5);
@@ -382,7 +384,9 @@ function drawSkeleton() {
             partA_norm = normalize_coords(partA.position.x,partA.position.y);
             partB_norm = normalize_coords(partB.position.x,partB.position.y)
             // line((partA.position.x * Rx), (partA.position.y * Ry), ((partB.position.x * Rx)), (partB.position.y * Ry));
-            line((partA_norm[0] * Rx*scale_x), (partA_norm[1] * Ry*scale_y), ((partB_norm[0] * Rx*scale_x)), (partB_norm[1] * Ry*scale_y));
+            var scale_kp_x = canvas.width
+            var scale_kp_y = canvas.height
+            line((partA_norm[0] * Rx*scale_kp_x), (partA_norm[1] * Ry*scale_kp_y), ((partB_norm[0] * Rx*scale_kp_x)), (partB_norm[1] * Ry*scale_kp_y));
         }
     }
 }
