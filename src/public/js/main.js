@@ -91,6 +91,11 @@ var videoHeight = 480;
 
 var canvasWidth, canvasHeight, Rx, Ry = 0;
 var hostFeedCanvas;
+
+// var play_video = false;
+let playing = false;
+let button;
+
 function setup() {
     // aspect ratio 4:3
     // width x height
@@ -116,11 +121,28 @@ function setup() {
     canvas.height = canvasHeight
 
 
-    video = createCapture(VIDEO);
-    video.size(canvasWidth, canvasHeight);
+    if (playing) {
+        // createVideo(['assets/fingers.mov', 'assets/fingers.webm']);
+        video = createVideo(['./assets/1.mp4']);
+        video.size(canvasWidth, canvasHeight);
 
-    poseVideoInstance = createCapture(VIDEO);
-    poseVideoInstance.size(videoWidth, videoHeight)
+        poseVideoInstance = createVideo(['./assets/1.mp4']);
+        poseVideoInstance.size(videoWidth, videoHeight)
+    }
+    else {
+        video = createCapture(VIDEO);
+        video.size(canvasWidth, canvasHeight);
+
+        poseVideoInstance = createCapture(VIDEO);
+        poseVideoInstance.size(videoWidth, videoHeight)
+    }
+    button = createButton('play');
+    button.mousePressed(toggleVid);
+    // video = createCapture(VIDEO);
+    // video.size(canvasWidth, canvasHeight);
+
+    // poseVideoInstance = createCapture(VIDEO);
+    // poseVideoInstance.size(videoWidth, videoHeight)
 
     $("#poseNetStatus").text('loading');
     poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
@@ -140,7 +162,43 @@ function setup() {
     // socket = socket.io.connect('http://localhost:3000')
 }
 
+function toggleVid() {
+    if (playing) {
+        console.log('Lol');
+      video.pause();
+      poseVideoInstance.pause();
 
+      video = createCapture(VIDEO);
+      video.size(canvasWidth, canvasHeight);
+
+      poseVideoInstance = createCapture(VIDEO);
+      poseVideoInstance.size(videoWidth, videoHeight)
+
+      button.html('play');
+    } else {
+      video = createVideo(['./assets/1.mp4']);
+      video.size(canvasWidth, canvasHeight);
+
+      poseVideoInstance = createVideo(['./assets/1.mp4']);
+      poseVideoInstance.size(videoWidth, videoHeight)
+
+      video.loop();
+      poseVideoInstance.loop();
+
+      poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
+      var fetchedPose = [];
+      poseNet.on('pose', function (results) {
+          poses = results; //poses recieved  
+          // console.log(poses)
+      });
+      video.hide()
+      poseVideoInstance.hide()
+
+      button.html('pause');
+    }
+    playing = !playing;
+
+  }
 
 function return_max_score_pose(pose_obj) {
     var keys = Object.keys(pose_obj)  //All keys in pose_fetched obj
