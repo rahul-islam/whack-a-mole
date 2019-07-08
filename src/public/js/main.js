@@ -7,9 +7,9 @@ var canvas_width, canvas_height;
 // var socket3 = io.connect('http://localhost:3000/getusermedia.html');
 var enrollButton = false; //Enroll button. Pressed to enrol a marker. 
 var checkButton = false; // Check button. On clicking, the main dataframe on the server is checked for registered aruco id
-var sendPoseButton = false;  // On press. Pose of person starts getting emitted to server.
+var sendPoseButton = false; // On press. Pose of person starts getting emitted to server.
 var fetchPoseButton = false; //On press. IP of device is sent to socket and pose is fetched
-var socket1 = io();  // pose is emitted using this socket
+var socket1 = io(); // pose is emitted using this socket
 var socket2 = io(); // ip transmitted
 // var socket3 = io();
 var user_Data = {}; //contains marker id and corresponding pose value
@@ -26,8 +26,7 @@ var scale_y = 100;
 // var norm_Y = 0.0;
 var enrolledMarker;
 
-function getDistance(x1, y1, x2, y2) 
-{
+function getDistance(x1, y1, x2, y2) {
     var x = x2 - x1
     var y = y2 - y1
 
@@ -49,7 +48,7 @@ socket.on('dataframe', (data) => {
             const poses = data[key].human;
             for (let index = 0; index < poses.length; index++) {
                 const pose = poses[index];
-                if(pose.id == enrolledMarker){
+                if (pose.id == enrolledMarker) {
                     console.info(key, 'has', enrolledMarker)
                     keypoints_fetched = pose;
                     $("#poseSharedBy").text(key);
@@ -62,16 +61,16 @@ socket.on('dataframe', (data) => {
 });
 
 const sendDataFrame = (poses, markers) => {
-  
+
     poses.forEach(pose => {
         var markerToAttach, markerToAttachDistance = 10000;
         for (let index = 0; index < markers.length; index++) {
             var marker = markers[index];
             var dist = getDistance(pose.pose.nose.x, pose.pose.nose.y, marker.corners[0].x, marker.corners[0].y)
-            if(dist < markerToAttachDistance) {
+            if (dist < markerToAttachDistance) {
                 markerToAttachDistance = dist;
                 markerToAttach = marker.id
-            }     
+            }
         }
         pose.id = markerToAttach
         return pose
@@ -93,7 +92,7 @@ var canvasWidth, canvasHeight, Rx, Ry = 0;
 var hostFeedCanvas;
 
 // var play_video = false;
-let playing = false;
+let playing = true;
 let button;
 
 function setup() {
@@ -128,13 +127,26 @@ function setup() {
 
         poseVideoInstance = createVideo(['./assets/1.mp4']);
         poseVideoInstance.size(videoWidth, videoHeight)
-    }
-    else {
+        $("#poseNetStatus").text('loading');
+        poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
+        var fetchedPose = [];
+        poseNet.on('pose', function (results) {
+            poses = results; //poses recieved  
+            // console.log(poses)
+        });
+    } else {
         video = createCapture(VIDEO);
         video.size(canvasWidth, canvasHeight);
 
         poseVideoInstance = createCapture(VIDEO);
         poseVideoInstance.size(videoWidth, videoHeight)
+        $("#poseNetStatus").text('loading');
+        poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
+        var fetchedPose = [];
+        poseNet.on('pose', function (results) {
+            poses = results; //poses recieved  
+            // console.log(poses)
+        });
     }
     button = createButton('play');
     button.mousePressed(toggleVid);
@@ -144,16 +156,16 @@ function setup() {
     // poseVideoInstance = createCapture(VIDEO);
     // poseVideoInstance.size(videoWidth, videoHeight)
 
-    $("#poseNetStatus").text('loading');
-    poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
-    var fetchedPose = [];
-    poseNet.on('pose', function (results) {
-        poses = results; //poses recieved  
-        // console.log(poses)
-    });
+    // $("#poseNetStatus").text('loading');
+    // poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
+    // var fetchedPose = [];
+    // poseNet.on('pose', function (results) {
+    //     poses = results; //poses recieved  
+    //     // console.log(poses)
+    // });
     // Hide the video element, and just show the canvas
-    video.hide();
-    poseVideoInstance.hide()
+    // video.hide();
+    // poseVideoInstance.hide()
     detector = new AR.Detector();
     posit = new POS.Posit(modelSize, canvas.width);
 
@@ -165,43 +177,50 @@ function setup() {
 function toggleVid() {
     if (playing) {
         console.log('Lol');
-      video.pause();
-      poseVideoInstance.pause();
+        video.pause();
+        poseVideoInstance.pause();
 
-      video = createCapture(VIDEO);
-      video.size(canvasWidth, canvasHeight);
+        video = createCapture(VIDEO);
+        video.size(canvasWidth, canvasHeight);
 
-      poseVideoInstance = createCapture(VIDEO);
-      poseVideoInstance.size(videoWidth, videoHeight)
-
-      button.html('play');
+        poseVideoInstance = createCapture(VIDEO);
+        poseVideoInstance.size(videoWidth, videoHeight)
+        video.hide();
+        poseVideoInstance.hide();
+        poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
+        // var fetchedPose = [];
+        // poseNet.on('pose', function (results) {
+        //     poses = results; //poses recieved  
+        //     // console.log(poses)
+        // });
+        button.html('play');
     } else {
-      video = createVideo(['./assets/1.mp4']);
-      video.size(canvasWidth, canvasHeight);
+        video = createVideo(['./assets/1.mp4']);
+        video.size(canvasWidth, canvasHeight);
 
-      poseVideoInstance = createVideo(['./assets/1.mp4']);
-      poseVideoInstance.size(videoWidth, videoHeight)
+        poseVideoInstance = createVideo(['./assets/1.mp4']);
+        poseVideoInstance.size(videoWidth, videoHeight)
 
-      video.loop();
-      poseVideoInstance.loop();
+        video.loop();
+        poseVideoInstance.loop();
 
-      poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
-      var fetchedPose = [];
-      poseNet.on('pose', function (results) {
-          poses = results; //poses recieved  
-          // console.log(poses)
-      });
-      video.hide()
-      poseVideoInstance.hide()
+        poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
+        // var fetchedPose = [];
+        // poseNet.on('pose', function (results) {
+        //     poses = results; //poses recieved  
+        //     // console.log(poses)
+        // });
+        video.hide()
+        poseVideoInstance.hide()
 
-      button.html('pause');
+        button.html('pause');
     }
     playing = !playing;
 
-  }
+}
 
 function return_max_score_pose(pose_obj) {
-    var keys = Object.keys(pose_obj)  //All keys in pose_fetched obj
+    var keys = Object.keys(pose_obj) //All keys in pose_fetched obj
     // console.log('keys are as follows:')
     // console.log(keys)
     // console.log(pose_obj)
@@ -260,17 +279,17 @@ function modelLoaded() {
 function arucoInView(markers) {
     let arucoList = '';
     markers.forEach(marker => {
-        arucoList += marker.id + ','       
+        arucoList += marker.id + ','
     });
     $("#arucoInView").text(arucoList);
 }
 
 function tick() {
     requestAnimationFrame(tick);
-    var markers = []; 
+    var markers = [];
     if (!!enrolledMarker) {
         image(poseVideoInstance, 0, 0, canvas.width, canvas.height);
-        imageData = context.getImageData(0, 0, videoWidth, videoHeight );
+        imageData = context.getImageData(0, 0, videoWidth, videoHeight);
         markers = detector.detect(imageData);
         clear();
         image(poseVideoInstance, 0, 0, videoWidth / 6, videoHeight / 6);
@@ -281,7 +300,7 @@ function tick() {
     }
 
     arucoInView(markers);
-    
+
     if (enrollButton) {
         if (markers.length == 1) {
             marker_id = markers[markers.length - 1].id.toString();
@@ -307,7 +326,7 @@ function tick() {
     }
 
     if (Object.keys(keypoints_fetched).length != 0 && keypoints_fetched.constructor === Object != 0) {
-        drawKeypoints_fetched();  //check if poses_recieved.length is not 0 on pressing fetch_button and draw them
+        drawKeypoints_fetched(); //check if poses_recieved.length is not 0 on pressing fetch_button and draw them
         drawSkeleton_fetched();
     }
     // sendDataFrame(poses, markers)
@@ -316,7 +335,7 @@ function tick() {
     }
     if (fetchPoseButton) {
         console.log("Good");
-        
+
         // keypoints_fetched = return_max_score_pose(poses_received)
     }
 
@@ -325,12 +344,11 @@ function tick() {
     }
 }
 
-function normalize_coords(x,y)
-{
-    var norm_X = x/canvasWidth;
-    var norm_Y = y/canvasHeight;
+function normalize_coords(x, y) {
+    var norm_X = x / canvasWidth;
+    var norm_Y = y / canvasHeight;
     // console.log('norm_X is::',norm_X)
-    return [norm_X,norm_Y];
+    return [norm_X, norm_Y];
 
 }
 
@@ -356,14 +374,14 @@ function drawKeypoints() {
                 var x_norm
                 var y_norm;
                 var norm_coords;
-                norm_coords = normalize_coords(keypoint.position.x,keypoint.position.y);
+                norm_coords = normalize_coords(keypoint.position.x, keypoint.position.y);
                 x_norm = norm_coords[0];
                 y_norm = norm_coords[1];
                 // console.log('norm x is::',x_norm)
                 // console.log('norm y is::',y_norm)
                 var scale_kp_x = canvas.width
                 var scale_kp_y = canvas.height
-                ellipse((x_norm * Rx*scale_kp_x), (y_norm * Ry*scale_kp_y), 10, 10);
+                ellipse((x_norm * Rx * scale_kp_x), (y_norm * Ry * scale_kp_y), 10, 10);
                 // ellipse(((keypoint.position.x * Rx)), (keypoint.position.y * Ry), 10, 10);
                 // ellipse((keypoint.position.x)*(canvas_width/displayWidth),(keypoint.position.y-100)*(canvas_height/displayHeight),5,5);
                 // ellipse(keypoint.position.x-100/2, keypoint.position.y-100/2,5,5);
@@ -396,10 +414,10 @@ function drawKeypoints_fetched() {
             var x_norm_fetched;
             var y_norm_feteched;
             var norm_coords_fetched;
-            norm_coords_fetched = normalize_coords(keypoint.position.x,keypoint.position.y);
+            norm_coords_fetched = normalize_coords(keypoint.position.x, keypoint.position.y);
             x_norm_fetched = norm_coords_fetched[0];
             y_norm_feteched = norm_coords_fetched[1];
-            ellipse((x_norm_fetched * Rx*scale_x)+100, (y_norm_feteched* Ry*scale_y)+100, 10, 10);
+            ellipse((x_norm_fetched * Rx * scale_x) + 100, (y_norm_feteched * Ry * scale_y) + 100, 10, 10);
         }
     }
     // }
@@ -436,15 +454,15 @@ function drawSkeleton() {
             stroke('#14dfe2');
             strokeWeight(3);
             // line((partA.position.x/4)+25, (partA.position.y)/4,((partB.position.x)/4)+25, (partB.position.y)/4);
-           
+
             var partA_norm;
             var partB_norm;
-            partA_norm = normalize_coords(partA.position.x,partA.position.y);
-            partB_norm = normalize_coords(partB.position.x,partB.position.y)
+            partA_norm = normalize_coords(partA.position.x, partA.position.y);
+            partB_norm = normalize_coords(partB.position.x, partB.position.y)
             // line((partA.position.x * Rx), (partA.position.y * Ry), ((partB.position.x * Rx)), (partB.position.y * Ry));
             var scale_kp_x = canvas.width
             var scale_kp_y = canvas.height
-            line((partA_norm[0] * Rx*scale_kp_x), (partA_norm[1] * Ry*scale_kp_y), ((partB_norm[0] * Rx*scale_kp_x)), (partB_norm[1] * Ry*scale_kp_y));
+            line((partA_norm[0] * Rx * scale_kp_x), (partA_norm[1] * Ry * scale_kp_y), ((partB_norm[0] * Rx * scale_kp_x)), (partB_norm[1] * Ry * scale_kp_y));
         }
     }
 }
@@ -462,13 +480,13 @@ function drawSkeleton_fetched() {
         strokeWeight(3);
         // line((partA.position.x/4)+25, (partA.position.y)/4,((partB.position.x)/4)+25, (partB.position.y)/4);
         // line((partA.position.x * Rx), (partA.position.y * Ry), ((partB.position.x * Rx)), (partB.position.y * Ry));
-      
+
         var partA_norm_fetched;
         var partB_norm_fetched;
-        partA_norm_fetched = normalize_coords(partA.position.x,partA.position.y);
-        partB_norm_fetched = normalize_coords(partB.position.x,partB.position.y)
+        partA_norm_fetched = normalize_coords(partA.position.x, partA.position.y);
+        partB_norm_fetched = normalize_coords(partB.position.x, partB.position.y)
         // line((partA.position.x * Rx), (partA.position.y * Ry), ((partB.position.x * Rx)), (partB.position.y * Ry));
-        line((partA_norm_fetched[0] * Rx*scale_x)+100, (partA_norm_fetched[1] * Ry*scale_y)+100, ((partB_norm_fetched[0] * Rx*scale_x)+100), (partB_norm_fetched[1] * Ry*scale_y)+100)
+        line((partA_norm_fetched[0] * Rx * scale_x) + 100, (partA_norm_fetched[1] * Ry * scale_y) + 100, ((partB_norm_fetched[0] * Rx * scale_x) + 100), (partB_norm_fetched[1] * Ry * scale_y) + 100)
     }
     // }
 }
@@ -505,8 +523,7 @@ function Enrollment(marker_id, pose_lenth) {
         alert(marker_id);
 
         //  alert(user_Data);
-    }
-    else {
+    } else {
         // console.log(pose_lenth)
         alert(marker_id + ' pose detected')
         // user_Data[marker_id]=ip;
@@ -515,14 +532,14 @@ function Enrollment(marker_id, pose_lenth) {
     //document.write ("This is a warning message!");
 }
 
-function change()  //function used to change value of enroll button
+function change() //function used to change value of enroll button
 {
     if (!enrollButton) {
         enrollButton = true
     }
 }
 
-function check()  //function used to change value of check button
+function check() //function used to change value of check button
 {
     if (!checkButton) {
         checkButton = true
@@ -542,6 +559,7 @@ function fetchPose() {
     fetchPoseButton = !fetchPoseButton
     // }
 }
+
 function logPose() {
     if (sendPoseButton) {
         // var socket = io();
@@ -551,6 +569,7 @@ function logPose() {
 
     }
 }
+
 function drawId(markers) {
     var corners, corner, x, y, i, j;
 
@@ -618,8 +637,7 @@ function drawId(markers) {
                 alert('Key is present')
                 alert('IP of user is::' + user_Data[maker_id].toString())
                 checkButton = false;
-            }
-            else {
+            } else {
                 alert('Key is not present')
                 checkButton = false;
             }
