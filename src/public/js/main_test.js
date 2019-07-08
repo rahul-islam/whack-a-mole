@@ -7,10 +7,10 @@ var canvas_width, canvas_height;
 // var socket3 = io.connect('http://localhost:3000/getusermedia.html');
 var enrollButton = false; //Enroll button. Pressed to enrol a marker. 
 var checkButton = false; // Check button. On clicking, the main dataframe on the server is checked for registered aruco id
-var sendPoseButton = false;  // On press. Pose of person starts getting emitted to server.
+var sendPoseButton = false; // On press. Pose of person starts getting emitted to server.
 var fetchPoseButton = false; //On press. IP of device is sent to socket and pose is fetched
 var play_video = true; //On press, instead of reading from camera, video file is read
-var socket1 = io();  // pose is emitted using this socket
+var socket1 = io(); // pose is emitted using this socket
 var socket2 = io(); // ip transmitted
 // var socket3 = io();
 var user_Data = {}; //contains marker id and corresponding pose value
@@ -27,8 +27,7 @@ var norm_X = 0.0;
 var norm_Y = 0.0;
 var enrolledMarker;
 
-function getDistance(x1, y1, x2, y2) 
-{
+function getDistance(x1, y1, x2, y2) {
     var x = x2 - x1
     var y = y2 - y1
 
@@ -50,7 +49,7 @@ socket.on('dataframe', (data) => {
             const poses = data[key].human;
             for (let index = 0; index < poses.length; index++) {
                 const pose = poses[index];
-                if(pose.id == enrolledMarker){
+                if (pose.id == enrolledMarker) {
                     console.info(key, 'has', enrolledMarker)
                     keypoints_fetched = pose;
                     $("#poseSharedBy").text(key);
@@ -63,16 +62,16 @@ socket.on('dataframe', (data) => {
 });
 
 const sendDataFrame = (poses, markers) => {
-  
+
     poses.forEach(pose => {
         var markerToAttach, markerToAttachDistance = 10000;
         for (let index = 0; index < markers.length; index++) {
             var marker = markers[index];
             var dist = getDistance(pose.pose.nose.x, pose.pose.nose.y, marker.corners[0].x, marker.corners[0].y)
-            if(dist < markerToAttachDistance) {
+            if (dist < markerToAttachDistance) {
                 markerToAttachDistance = dist;
                 markerToAttach = marker.id
-            }     
+            }
         }
         pose.id = markerToAttach
         return pose
@@ -92,6 +91,7 @@ var videoHeight = 480;
 
 var canvasWidth, canvasHeight, Rx, Ry = 0;
 var hostFeedCanvas;
+
 function setup() {
     // aspect ratio 4:3
     // width x height
@@ -115,34 +115,32 @@ function setup() {
     context = canvas.getContext("2d");
     canvas.width = canvasWidth
     canvas.height = canvasHeight
-    if(play_video)
-    {
-    vid = createVideo('/assets/aruco_test.mp4',
-    vidLoad
-    );
+    if (play_video) {
+        vid = createVideo('/assets/aruco_test.mp4',
+            vidLoad
+        );
 
 
-    vid2 = createVideo('/assets/aruco_test.mp4',
-    vidLoad
-    );
+        vid2 = createVideo('/assets/aruco_test.mp4',
+            vidLoad
+        );
 
-    vid.size(videoWidth, videoHeight);
-    vid2.size(videoWidth, videoHeight);
+        vid.size(videoWidth, videoHeight);
+        vid2.size(videoWidth, videoHeight);
 
 
-    vid.hide();
-    vid2.hide();
-    }
-    else{
+        vid.hide();
+        vid2.hide();
+    } else {
         video = createCapture(VIDEO);
-    video.size(canvasWidth, canvasHeight);
+        video.size(canvasWidth, canvasHeight);
 
-    poseVideoInstance = createCapture(VIDEO);
-    poseVideoInstance.size(videoWidth, videoHeight)
+        poseVideoInstance = createCapture(VIDEO);
+        poseVideoInstance.size(videoWidth, videoHeight)
     }
     // video.size(canvasWidth, canvasHeight);
     // video.size(canvasWidth, canvasHeight);
-    
+
     // video = createCapture(VIDEO);
     // video.size(canvasWidth, canvasHeight);
 
@@ -159,8 +157,8 @@ function setup() {
     // Hide the video element, and just show the canvas
     // video.hide();
     // poseVideoInstance.hide()
-  
-    
+
+
 
 
     detector = new AR.Detector();
@@ -177,9 +175,10 @@ function vidLoad() {
     vid.volume(0);
     vid2.loop();
     vid2.volume(0);
-  }
+}
+
 function return_max_score_pose(pose_obj) {
-    var keys = Object.keys(pose_obj)  //All keys in pose_fetched obj
+    var keys = Object.keys(pose_obj) //All keys in pose_fetched obj
     // console.log('keys are as follows:')
     // console.log(keys)
     // console.log(pose_obj)
@@ -238,7 +237,7 @@ function modelLoaded() {
 function arucoInView(markers) {
     let arucoList = '';
     markers.forEach(marker => {
-        arucoList += marker.id + ','       
+        arucoList += marker.id + ','
     });
     $("#arucoInView").text(arucoList);
 }
@@ -248,17 +247,17 @@ function tick() {
     vid.loop();
     // vid.volume(0);
     vid2.loop()
-    var markers = []; 
+    var markers = [];
     if (!!enrolledMarker) {
         // image(vid, 0, 0, canvas.width, canvas.height);
-        image(vid, 0, 0,videoWidth,videoHeight);
-        imageData = context.getImageData(0, 0, videoWidth, videoHeight );
+        image(vid, 0, 0, videoWidth, videoHeight);
+        imageData = context.getImageData(0, 0, videoWidth, videoHeight);
         markers = detector.detect(imageData);
         clear();
         image(vid, 0, 0, videoWidth / 6, videoHeight / 6);
     } else {
         // image(vid2, 0, 0, canvas.width, canvas.height);
-        image(vid2, 0, 0,videoWidth,videoHeight);
+        image(vid2, 0, 0, videoWidth, videoHeight);
         imageData = context.getImageData(0, 0, canvas.width, canvas.height);
         markers = detector.detect(imageData);
     }
@@ -291,7 +290,7 @@ function tick() {
     }
 
     if (Object.keys(keypoints_fetched).length != 0 && keypoints_fetched.constructor === Object != 0) {
-        drawKeypoints_fetched();  //check if poses_recieved.length is not 0 on pressing fetch_button and draw them
+        drawKeypoints_fetched(); //check if poses_recieved.length is not 0 on pressing fetch_button and draw them
         drawSkeleton_fetched();
     }
     // sendDataFrame(poses, markers)
@@ -300,7 +299,7 @@ function tick() {
     }
     if (fetchPoseButton) {
         console.log("Good");
-        
+
         // keypoints_fetched = return_max_score_pose(poses_received)
     }
 
@@ -309,10 +308,9 @@ function tick() {
     }
 }
 
-function normalize_coords(x,y)
-{
-    norm_X = x/canvasWidth;
-    norm_Y = y/canvasHeight;
+function normalize_coords(x, y) {
+    norm_X = x / canvasWidth;
+    norm_Y = y / canvasHeight;
 
 }
 
@@ -335,10 +333,10 @@ function drawKeypoints() {
                 fill(0, 255, 255);
                 noStroke();
                 // ellipse(((keypoint.position.x)/4)+25,(keypoint.position.y)/4,5,5);
-                normalize_coords(keypoint.position.x,keypoint.position.y);
+                normalize_coords(keypoint.position.x, keypoint.position.y);
                 // console.log('norm x is::',norm_X)
                 // console.log('norm y is::',norm_Y)
-                ellipse(((norm_X * Rx*100)), (norm_Y * Ry*100), 10, 10);
+                ellipse(((norm_X * Rx * 100)), (norm_Y * Ry * 100), 10, 10);
                 // ellipse(((keypoint.position.x * Rx)), (keypoint.position.y * Ry), 10, 10);
                 // ellipse((keypoint.position.x)*(canvas_width/displayWidth),(keypoint.position.y-100)*(canvas_height/displayHeight),5,5);
                 // ellipse(keypoint.position.x-100/2, keypoint.position.y-100/2,5,5);
@@ -459,8 +457,7 @@ function Enrollment(marker_id, pose_lenth) {
         alert(marker_id);
 
         //  alert(user_Data);
-    }
-    else {
+    } else {
         // console.log(pose_lenth)
         alert(marker_id + ' pose detected')
         // user_Data[marker_id]=ip;
@@ -469,18 +466,18 @@ function Enrollment(marker_id, pose_lenth) {
     //document.write ("This is a warning message!");
 }
 
-function change()  //function used to change value of enroll button
+function change() //function used to change value of enroll button
 {
     if (!enrollButton) {
         enrollButton = true
     }
 }
-function change_capture()
-{
-    play_video=!play_video
+
+function change_capture() {
+    play_video = !play_video
 }
 
-function check()  //function used to change value of check button
+function check() //function used to change value of check button
 {
     if (!checkButton) {
         checkButton = true
@@ -500,6 +497,7 @@ function fetchPose() {
     fetchPoseButton = !fetchPoseButton
     // }
 }
+
 function logPose() {
     if (sendPoseButton) {
         // var socket = io();
@@ -509,6 +507,7 @@ function logPose() {
 
     }
 }
+
 function drawId(markers) {
     var corners, corner, x, y, i, j;
 
@@ -576,8 +575,7 @@ function drawId(markers) {
                 alert('Key is present')
                 alert('IP of user is::' + user_Data[maker_id].toString())
                 checkButton = false;
-            }
-            else {
+            } else {
                 alert('Key is not present')
                 checkButton = false;
             }
