@@ -9,6 +9,7 @@ var enrollButton = false; //Enroll button. Pressed to enrol a marker.
 var checkButton = false; // Check button. On clicking, the main dataframe on the server is checked for registered aruco id
 var sendPoseButton = false;  // On press. Pose of person starts getting emitted to server.
 var fetchPoseButton = false; //On press. IP of device is sent to socket and pose is fetched
+var play_video = true; //On press, instead of reading from camera, video file is read
 var socket1 = io();  // pose is emitted using this socket
 var socket2 = io(); // ip transmitted
 // var socket3 = io();
@@ -114,18 +115,34 @@ function setup() {
     context = canvas.getContext("2d");
     canvas.width = canvasWidth
     canvas.height = canvasHeight
+    if(play_video)
+    {
     vid = createVideo('/assets/aruco_test.mp4',
     vidLoad
     );
+
 
     vid2 = createVideo('/assets/aruco_test.mp4',
     vidLoad
     );
 
-    // video.size(canvasWidth, canvasHeight);
-    // video.size(canvasWidth, canvasHeight);
     vid.size(videoWidth, videoHeight);
     vid2.size(videoWidth, videoHeight);
+
+
+    vid.hide();
+    vid2.hide();
+    }
+    else{
+        video = createCapture(VIDEO);
+    video.size(canvasWidth, canvasHeight);
+
+    poseVideoInstance = createCapture(VIDEO);
+    poseVideoInstance.size(videoWidth, videoHeight)
+    }
+    // video.size(canvasWidth, canvasHeight);
+    // video.size(canvasWidth, canvasHeight);
+    
     // video = createCapture(VIDEO);
     // video.size(canvasWidth, canvasHeight);
 
@@ -146,8 +163,6 @@ function setup() {
     
 
 
-    vid.hide();
-    vid2.hide();
     detector = new AR.Detector();
     posit = new POS.Posit(modelSize, canvas.width);
 
@@ -459,6 +474,10 @@ function change()  //function used to change value of enroll button
     if (!enrollButton) {
         enrollButton = true
     }
+}
+function change_capture()
+{
+    play_video=!play_video
 }
 
 function check()  //function used to change value of check button
