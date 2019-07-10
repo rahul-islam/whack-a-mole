@@ -118,10 +118,10 @@ function setup()
     canvas.width = canvasWidth
     canvas.height = canvasHeight
 
-    video = createVideo(['./assets/1.mp4']);
+    video = createVideo(['./assets/1.mp4'],vidLoad);
     video.size(canvasWidth, canvasHeight);
 
-    poseVideoInstance = createVideo(['./assets/1.mp4']);
+    poseVideoInstance = createVideo(['./assets/1.mp4'],vidLoad2);
     poseVideoInstance.size(videoWidth, videoHeight)
     $("#poseNetStatus").text('loading');
     poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
@@ -130,13 +130,33 @@ function setup()
         poses = results; //poses recieved  
         // console.log(poses)
     });
-
+   
+    // video.hide();
+    // 
+   
+    poseVideoInstance.loop();
+   
+    video.loop();
+    // poseVideoInstance.hide();
+    // video.hide();
     detector = new AR.Detector();
     posit = new POS.Posit(modelSize, canvas.width);
 
     requestAnimationFrame(tick);
 
 
+}
+
+function vidLoad() {
+    video.loop();
+    video.volume(0);
+    
+  }
+
+function vidLoad2()
+{
+    poseVideoInstance.loop();
+    poseVideoInstance.volume(0);
 }
 
 // function setup() {
