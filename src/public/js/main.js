@@ -95,11 +95,10 @@ var hostFeedCanvas;
 let playing = true;
 let button;
 
-function setup() {
-    // aspect ratio 4:3
-    // width x height
-    // 640 x 480
 
+
+function setup()
+{
     canvasWidth = screen.width;
     canvasHeight = screen.width * 0.75;
 
@@ -119,105 +118,150 @@ function setup() {
     canvas.width = canvasWidth
     canvas.height = canvasHeight
 
+    video = createVideo(['./assets/1.mp4']);
+    video.size(canvasWidth, canvasHeight);
 
-    if (playing) {
-        // createVideo(['assets/fingers.mov', 'assets/fingers.webm']);
-        video = createVideo(['./assets/1.mp4']);
-        video.size(canvasWidth, canvasHeight);
+    poseVideoInstance = createVideo(['./assets/1.mp4']);
+    poseVideoInstance.size(videoWidth, videoHeight)
+    $("#poseNetStatus").text('loading');
+    poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
+    var fetchedPose = [];
+    poseNet.on('pose', function (results) {
+        poses = results; //poses recieved  
+        // console.log(poses)
+    });
 
-        poseVideoInstance = createVideo(['./assets/1.mp4']);
-        poseVideoInstance.size(videoWidth, videoHeight)
-        $("#poseNetStatus").text('loading');
-        poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
-        var fetchedPose = [];
-        poseNet.on('pose', function (results) {
-            poses = results; //poses recieved  
-            // console.log(poses)
-        });
-    } else {
-        video = createCapture(VIDEO);
-        video.size(canvasWidth, canvasHeight);
-
-        poseVideoInstance = createCapture(VIDEO);
-        poseVideoInstance.size(videoWidth, videoHeight)
-        $("#poseNetStatus").text('loading');
-        poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
-        var fetchedPose = [];
-        poseNet.on('pose', function (results) {
-            poses = results; //poses recieved  
-            // console.log(poses)
-        });
-    }
-    button = createButton('play');
-    button.mousePressed(toggleVid);
-    // video = createCapture(VIDEO);
-    // video.size(canvasWidth, canvasHeight);
-
-    // poseVideoInstance = createCapture(VIDEO);
-    // poseVideoInstance.size(videoWidth, videoHeight)
-
-    // $("#poseNetStatus").text('loading');
-    // poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
-    // var fetchedPose = [];
-    // poseNet.on('pose', function (results) {
-    //     poses = results; //poses recieved  
-    //     // console.log(poses)
-    // });
-    // Hide the video element, and just show the canvas
-    // video.hide();
-    // poseVideoInstance.hide()
     detector = new AR.Detector();
     posit = new POS.Posit(modelSize, canvas.width);
 
     requestAnimationFrame(tick);
 
-    // socket = socket.io.connect('http://localhost:3000')
-}
-
-function toggleVid() {
-    if (playing) {
-        console.log('Lol');
-        video.pause();
-        poseVideoInstance.pause();
-
-        video = createCapture(VIDEO);
-        video.size(canvasWidth, canvasHeight);
-
-        poseVideoInstance = createCapture(VIDEO);
-        poseVideoInstance.size(videoWidth, videoHeight)
-        video.hide();
-        poseVideoInstance.hide();
-        poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
-        // var fetchedPose = [];
-        // poseNet.on('pose', function (results) {
-        //     poses = results; //poses recieved  
-        //     // console.log(poses)
-        // });
-        button.html('play');
-    } else {
-        video = createVideo(['./assets/1.mp4']);
-        video.size(canvasWidth, canvasHeight);
-
-        poseVideoInstance = createVideo(['./assets/1.mp4']);
-        poseVideoInstance.size(videoWidth, videoHeight)
-
-        video.loop();
-        poseVideoInstance.loop();
-
-        poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
-        // var fetchedPose = [];
-        // poseNet.on('pose', function (results) {
-        //     poses = results; //poses recieved  
-        //     // console.log(poses)
-        // });
-        video.hide()
-        poseVideoInstance.hide()
-
-        button.html('pause');
-    }
-    playing = !playing;
 
 }
+
+// function setup() {
+//     // aspect ratio 4:3
+//     // width x height
+//     // 640 x 480
+
+//     canvasWidth = screen.width;
+//     canvasHeight = screen.width * 0.75;
+
+//     // https://stackoverflow.com/questions/45724955/find-new-coordinates-of-a-point-after-image-resize
+//     Rx = canvasWidth / videoWidth
+//     Ry = canvasHeight / videoHeight
+
+//     background(255)
+//     // canvas1 = createCanvas(canvas_width,canvas_height);
+//     canvas1 = createCanvas(canvasWidth, canvasHeight);
+//     var cent_x = (displayWidth - width) / 2;
+//     var cent_y = (displayHeight - height) / 2;
+
+//     canvas1.parent('myContainer');
+//     canvas = canvas1.canvas;
+//     context = canvas.getContext("2d");
+//     canvas.width = canvasWidth
+//     canvas.height = canvasHeight
+
+
+//     if (playing) {
+//         // createVideo(['assets/fingers.mov', 'assets/fingers.webm']);
+//         video = createVideo(['./assets/1.mp4']);
+//         video.size(canvasWidth, canvasHeight);
+
+//         poseVideoInstance = createVideo(['./assets/1.mp4']);
+//         poseVideoInstance.size(videoWidth, videoHeight)
+//         $("#poseNetStatus").text('loading');
+//         poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
+//         var fetchedPose = [];
+//         poseNet.on('pose', function (results) {
+//             poses = results; //poses recieved  
+//             // console.log(poses)
+//         });
+//     } else {
+//         video = createCapture(VIDEO);
+//         video.size(canvasWidth, canvasHeight);
+
+//         poseVideoInstance = createCapture(VIDEO);
+//         poseVideoInstance.size(videoWidth, videoHeight)
+//         $("#poseNetStatus").text('loading');
+//         poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
+//         var fetchedPose = [];
+//         poseNet.on('pose', function (results) {
+//             poses = results; //poses recieved  
+//             // console.log(poses)
+//         });
+//     }
+//     button = createButton('play');
+//     button.mousePressed(toggleVid);
+//     // video = createCapture(VIDEO);
+//     // video.size(canvasWidth, canvasHeight);
+
+//     // poseVideoInstance = createCapture(VIDEO);
+//     // poseVideoInstance.size(videoWidth, videoHeight)
+
+//     // $("#poseNetStatus").text('loading');
+//     // poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
+//     // var fetchedPose = [];
+//     // poseNet.on('pose', function (results) {
+//     //     poses = results; //poses recieved  
+//     //     // console.log(poses)
+//     // });
+//     // Hide the video element, and just show the canvas
+//     // video.hide();
+//     // poseVideoInstance.hide()
+//     detector = new AR.Detector();
+//     posit = new POS.Posit(modelSize, canvas.width);
+
+//     requestAnimationFrame(tick);
+
+//     // socket = socket.io.connect('http://localhost:3000')
+// }
+
+// function toggleVid() {
+//     if (playing) {
+//         console.log('Lol');
+//         video.pause();
+//         poseVideoInstance.pause();
+
+//         video = createCapture(VIDEO);
+//         video.size(canvasWidth, canvasHeight);
+
+//         poseVideoInstance = createCapture(VIDEO);
+//         poseVideoInstance.size(videoWidth, videoHeight)
+//         video.hide();
+//         poseVideoInstance.hide();
+//         poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
+//         // var fetchedPose = [];
+//         // poseNet.on('pose', function (results) {
+//         //     poses = results; //poses recieved  
+//         //     // console.log(poses)
+//         // });
+//         button.html('play');
+//     } else {
+//         video = createVideo(['./assets/1.mp4']);
+//         video.size(canvasWidth, canvasHeight);
+
+//         poseVideoInstance = createVideo(['./assets/1.mp4']);
+//         poseVideoInstance.size(videoWidth, videoHeight)
+
+//         video.loop();
+//         poseVideoInstance.loop();
+
+//         poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
+//         // var fetchedPose = [];
+//         // poseNet.on('pose', function (results) {
+//         //     poses = results; //poses recieved  
+//         //     // console.log(poses)
+//         // });
+//         video.hide()
+//         poseVideoInstance.hide()
+
+//         button.html('pause');
+//     }
+//     playing = !playing;
+
+// }
 
 function return_max_score_pose(pose_obj) {
     var keys = Object.keys(pose_obj) //All keys in pose_fetched obj
