@@ -15,3 +15,7 @@ build
 src/test/
 zips/*
 .DS_Store
+
+
+# videos
+src/public/assets/*
