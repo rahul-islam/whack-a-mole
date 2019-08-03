@@ -31,8 +31,15 @@ if (config.env === "development") {
 
 console.info('Dataframe\t->', univesalDataMap);
 
+let vidList = ['./assets/1.mp4', './assets/2.mp4', './assets/3.mp4']
+
 io.on('connection', (socket) => {
   var arucoRegistration = false;
+
+  var vidId = vidList.pop();
+  console.log('vidId', vidId)
+  socket.vidId = vidId;
+  socket.emit('vidId', vidId)
 
   // when the client emits 'dataframe', this listens and executes
   socket.on('dataframe', (data) => {
@@ -79,6 +86,8 @@ io.on('connection', (socket) => {
       socket.broadcast.emit('unregister aruco', {
         arucoId: socket.arucoId,
       });
+
     }
+    vidList.push(socket.vidId)
   });
 });

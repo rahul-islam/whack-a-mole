@@ -1,6 +1,7 @@
 var video, canvas, context, imageData, detector, canvas1, poseNet, poseVideoInstance, poses = [];
 var posit;
 var modelSize = 35.0; //millimeters
+var vidId = '';
 
 var socket = io();
 var canvas_width, canvas_height;
@@ -9,9 +10,7 @@ var enrollButton = false; //Enroll button. Pressed to enrol a marker.
 var checkButton = false; // Check button. On clicking, the main dataframe on the server is checked for registered aruco id
 var sendPoseButton = false;  // On press. Pose of person starts getting emitted to server.
 var fetchPoseButton = false; //On press. IP of device is sent to socket and pose is fetched
-var socket1 = io();  // pose is emitted using this socket
-var socket2 = io(); // ip transmitted
-// var socket3 = io();
+
 var user_Data = {}; //contains marker id and corresponding pose value
 var user_pose_Dat = {}; //json used to emit ip,pose pair
 
@@ -36,7 +35,10 @@ function getDistance(x1, y1, x2, y2)
     return mag
 }
 
-
+socket.on('vidId', (data) => {
+    console.log('vidId =>', data)
+    vidId = data;
+})
 
 socket.on('dataframe', (data) => {
     // console.log(socket.arucoId);
@@ -115,12 +117,17 @@ function setup() {
     canvas.width = canvasWidth
     canvas.height = canvasHeight
 
-
-    video = createCapture(VIDEO);
+    video = createVideo([vidId],vidLoadMainVideo);
     video.size(canvasWidth, canvasHeight);
 
-    poseVideoInstance = createCapture(VIDEO);
+    poseVideoInstance = createVideo([vidId],vidLoadPoseVideoInstance);
     poseVideoInstance.size(videoWidth, videoHeight)
+
+    // video = createCapture(VIDEO);
+    // video.size(canvasWidth, canvasHeight);
+
+    // poseVideoInstance = createCapture(VIDEO);
+    // poseVideoInstance.size(videoWidth, videoHeight)
 
     $("#poseNetStatus").text('loading');
     poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
@@ -140,7 +147,16 @@ function setup() {
     // socket = socket.io.connect('http://localhost:3000')
 }
 
+function vidLoadMainVideo() {
+    video.loop();
+    video.volume(0);
+    
+  }
 
+function vidLoadPoseVideoInstance(){
+    poseVideoInstance.loop();
+    poseVideoInstance.volume(0);
+}
 
 function return_max_score_pose(pose_obj) {
     var keys = Object.keys(pose_obj)  //All keys in pose_fetched obj
