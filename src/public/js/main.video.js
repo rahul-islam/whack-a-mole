@@ -117,17 +117,17 @@ function setup() {
     canvas.width = canvasWidth
     canvas.height = canvasHeight
 
-    // video = createVideo([vidId],vidLoadMainVideo);
-    // video.size(canvasWidth, canvasHeight);
-
-    // poseVideoInstance = createVideo([vidId],vidLoadPoseVideoInstance);
-    // poseVideoInstance.size(videoWidth, videoHeight)
-
-    video = createCapture(VIDEO);
+    video = createVideo([vidId],vidLoadMainVideo);
     video.size(canvasWidth, canvasHeight);
 
-    poseVideoInstance = createCapture(VIDEO);
+    poseVideoInstance = createVideo([vidId],vidLoadPoseVideoInstance);
     poseVideoInstance.size(videoWidth, videoHeight)
+
+    // video = createCapture(VIDEO);
+    // video.size(canvasWidth, canvasHeight);
+
+    // poseVideoInstance = createCapture(VIDEO);
+    // poseVideoInstance.size(videoWidth, videoHeight)
 
     $("#poseNetStatus").text('loading');
     poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
