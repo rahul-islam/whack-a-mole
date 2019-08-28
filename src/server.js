@@ -3,12 +3,18 @@
  * 
  */
 
+var fs = require("fs"); /// Only using this to create simulation pose file
 var express = require('express');
 var app = express();
 var path = require('path');
-var server = require('http').createServer(app);
+
+var server = require('https').createServer({
+  key: fs.readFileSync('./ssl/key.pem'),
+  cert: fs.readFileSync('./ssl/cert.pem'),
+  passphrase: '1234'
+}, app);
+
 var io = require('socket.io')(server);
-var fs = require("fs"); /// Only using this to create simulation pose file
 
 var { config } = require('./config/environment');
 console.info('config\t->', config)
