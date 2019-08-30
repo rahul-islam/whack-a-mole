@@ -10454,9 +10454,9 @@ function store_points(x, y, k) {
     webgazer.params.faceFeedbackBoxRatio = 0.66;
 
     // View options
-    webgazer.params.showVideo = true;
-    webgazer.params.showFaceOverlay = true;
-    webgazer.params.showFaceFeedbackBox = true;
+    webgazer.params.showVideo = false;
+    webgazer.params.showFaceOverlay = false;
+    webgazer.params.showFaceFeedbackBox = false;
     webgazer.params.showGazeDot = false;
 
     //Params to clmtrackr and getUserMedia constraints
