@@ -1,3 +1,21 @@
+
+var myX; 
+var myY; 
+
+webgazer.setRegression('ridge').setTracker('clmtrackr').showPredictionPoints(true).setGazeListener(function(data, elapsedTime) {
+    if (data == null) {
+        return;
+    }
+    // console.log(data)
+    myX = data.x; //these x coordinates are relative to the viewport
+    myY = data.y; //these y coordinates are relative to the viewport
+}).begin();
+
+// function draw() {
+//     // background(234); 
+// ellipse(myX, myY, 40, 40); 
+// }
+
 function getDistance(x1, y1, x2, y2) 
 {
     var x = x2 - x1
