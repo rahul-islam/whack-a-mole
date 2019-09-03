@@ -1,3 +1,40 @@
+var holes = [{
+    x: 90,
+    y: 100,
+    r: 50
+},{
+    x: 190,
+    y: 100,
+    r: 50
+},{
+    x: 290,
+    y: 100,
+    r: 50
+}]
+
+let hit = 0;
+let missed = 0;
+let canHit = true;
+var mole = 0;
+var hand, handx, handy;
+function preload() {
+    hand = loadImage("./images/thanos.gif");
+    console.log(hand)
+}
+
+setInterval(function(){ 
+    mole = Math.floor(Math.random() * 3);
+    canHit = true;
+}, 2000);
+
+function isInside(circle_x, circle_y, rad, x, y){
+    if ((x - circle_x) * (x - circle_x) + 
+        (y - circle_y) * (y - circle_y) <= rad * rad) 
+        return true; 
+    else
+        return false; 
+}
+
 function getDistance(x1, y1, x2, y2) 
 {
     var x = x2 - x1
@@ -164,6 +201,40 @@ function tick() {
         markers = detector.detect(imageData);
     }
 
+    for (let index = 0; index < holes.length; index++) {
+        const hole = holes[index];
+        if (index === mole) {
+            let c = color(65); // Update 'c' with grayscale value
+            fill(c); // Use updated 'c' as fill color
+            circle(hole.x, hole.y, hole.r);
+        } else {
+            let c = color(255, 204, 0);
+            fill(c); 
+            circle(hole.x, hole.y, hole.r);
+        }
+
+    }
+
+    // console.log(poses)
+    if(poses[0] && poses[0].pose.rightWrist.confidence > 0.7 ) {
+        var rNorm = normalize_coords(poses[0].pose.rightWrist.x, poses[0].pose.rightWrist.y)
+        handx = rNorm[0]*Rx*canvas.width
+        handy = rNorm[1]*Ry*canvas.height
+        // var lNorm = normalize_coords(poses[0].pose.leftWrist.x, poses[0].pose.leftWrist.y)
+        var isHit = isInside(holes[mole].x, holes[mole].y, holes[mole].r, rNorm[0]*Rx*canvas.width, rNorm[1]*Ry*canvas.height);
+        console.log(isHit, canHit)
+        if(isHit && canHit){
+            hit = hit + 1;
+            canHit = false;
+            $("#hitScore").text(hit);
+            console.log(hit)
+        }
+    }
+
+    image(hand, handx, handy);
+
+    hand.resize(50, 100);
+
     arucoInView(markers);
     
     if (enrollButton) {
@@ -185,8 +256,10 @@ function tick() {
     if (!enrolledMarker) {
         drawCorners(markers); //marker corners drawn
         drawId(markers); //marker id written
-        drawKeypoints(); //pose keypoints drawn
-        drawSkeleton(); //pose skeleton drawn    
+        // drawKeypoints(); //pose keypoints drawn
+        drawSkeleton(["rightWrist", "rightElbow", "rightShoulder"]); //pose skeleton drawn
+        drawArmKeypoints(); //pose keypoints drawn
+        // drawArmSkeleton(); //pose skeleton drawn
         //fetched skeleton is drawn
     }
 
@@ -256,6 +329,36 @@ function drawKeypoints() {
     }
 }
 
+
+function drawArmKeypoints() {
+    // Loop through all the poses detected
+    let keypointsToDraw = ["rightWrist", "rightElbow", "rightShoulder"]
+    for (let i = 0; i < poses.length; i++) {
+        // For each pose detected, loop through all the keypoints
+        let pose = poses[i].pose;
+        for (let j = 0; j < pose.keypoints.length; j++) {
+            // A keypoint is an object describing a body part (like rightArm or leftShoulder)
+            let keypoint = pose.keypoints[j];
+            // Only draw an ellipse is the pose probability is bigger than 0.2
+            if (keypoint.score > 0.4 && keypointsToDraw.indexOf(keypoint.part) >= 0) {
+                fill(0, 255, 255);
+                noStroke();
+                // ellipse(((keypoint.position.x)/4)+25,(keypoint.position.y)/4,5,5);
+                var x_norm
+                var y_norm;
+                var norm_coords;
+                norm_coords = normalize_coords(keypoint.position.x,keypoint.position.y);
+                x_norm = norm_coords[0];
+                y_norm = norm_coords[1];
+                // console.log('norm x is::',x_norm)
+                // console.log('norm y is::',y_norm)
+                var scale_kp_x = canvas.width
+                var scale_kp_y = canvas.height
+                ellipse((x_norm * Rx*scale_kp_x), (y_norm * Ry*scale_kp_y), 10, 10);
+            }
+        }
+    }
+}
 // function normalize_keypoints()
 // {
 
@@ -309,12 +412,14 @@ var pointSize = 3;
 //  }
 
 // A function to draw the skeletons
-function drawSkeleton() {
+function drawSkeleton(partToDraw) {
+
     // Loop through all the skeletons detected
     for (let i = 0; i < poses.length; i++) {
         let skeleton = poses[i].skeleton;
         // For every skeleton, loop through all body connections
         for (let j = 0; j < skeleton.length; j++) {
+            if(!partToDraw.indexOf(skeleton[j][0].part) >= 0 && !partToDraw.indexOf(skeleton[j][1].part) >= 0) continue;
             let partA = skeleton[j][0];
             let partB = skeleton[j][1];
             stroke('#14dfe2');

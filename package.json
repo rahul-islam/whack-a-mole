@@ -17,6 +17,7 @@
     "express": "^4.16.2",
     "jquery": "^3.4.1",
     "lodash": "^4.17.11",
+    "pressure": "^2.1.2",
     "socket.io": "^2.2.0"
   },
   "devDependencies": {

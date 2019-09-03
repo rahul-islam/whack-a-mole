@@ -73,7 +73,6 @@ function setup() {
     var fetchedPose = [];
     poseNet.on('pose', function (results) {
         poses = results; //poses recieved  
-        // console.log(poses)
     });
     // Hide the video element, and just show the canvas
     video.hide();
