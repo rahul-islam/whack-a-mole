@@ -40,6 +40,10 @@ function setup() {
     canvasWidth = screen.width > videoWidth ? videoWidth : screen.width;
     canvasHeight = canvasWidth * 0.75;
 
+    var x = (windowWidth - canvasWidth) / 2;
+    var y = (windowHeight - canvasHeight) / 2;
+
+    // console.log(windowWidth, width)
     // https://stackoverflow.com/questions/45724955/find-new-coordinates-of-a-point-after-image-resize
     Rx = canvasWidth / videoWidth
     Ry = canvasHeight / videoHeight
@@ -47,15 +51,12 @@ function setup() {
     background(255)
     // canvas1 = createCanvas(canvas_width,canvas_height);
     canvas1 = createCanvas(canvasWidth, canvasHeight);
-    var cent_x = (displayWidth - width) / 2;
-    var cent_y = (displayHeight - height) / 2;
-
+    canvas1.position(x, y); // canvas position
     canvas1.parent('myContainer');
     canvas = canvas1.canvas;
     context = canvas.getContext("2d");
     canvas.width = canvasWidth
     canvas.height = canvasHeight
-
     // video = createVideo([vidId],vidLoadMainVideo);
     // video.size(canvasWidth, canvasHeight);
 
