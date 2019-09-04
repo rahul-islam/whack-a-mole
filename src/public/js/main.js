@@ -37,8 +37,8 @@ function setup() {
     // width x height
     // 640 x 480
 
-    canvasWidth = screen.width;
-    canvasHeight = screen.width * 0.75;
+    canvasWidth = screen.width > videoWidth ? videoWidth : screen.width;
+    canvasHeight = canvasWidth * 0.75;
 
     // https://stackoverflow.com/questions/45724955/find-new-coordinates-of-a-point-after-image-resize
     Rx = canvasWidth / videoWidth
