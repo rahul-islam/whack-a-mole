@@ -73,7 +73,8 @@ function setup() {
     poseNet = ml5.poseNet(poseVideoInstance, modelLoaded);
     var fetchedPose = [];
     poseNet.on('pose', function (results) {
-        poses = results; //poses recieved  
+        poses = results; //poses recieved
+        assignPlayerPose(poses);  
     });
     // Hide the video element, and just show the canvas
     video.hide();
@@ -81,8 +82,101 @@ function setup() {
     detector = new AR.Detector();
     posit = new POS.Posit(modelSize, canvas.width);
 
+    // Define Number of Holes to create
+    initHoles(3);
+    createRegistration();
     requestAnimationFrame(tick);
 
     // socket = socket.io.connect('http://localhost:3000')
 }
 
+
+var holes = [];
+function initHoles(nos) {
+    var xF = canvas.width/6
+    var yF = canvas.width/8
+
+    for (let j = 0; j < nos; j++) {
+        holes.push({
+            'x': xF + 2 * j * xF,
+            'y': yF,
+            'r': 50,
+            'hasMole': false,
+        })
+    }
+    for (let j = 0; j < nos - 1; j++) {
+        holes.push({
+            'x': 2*xF + 2 * j * xF,
+            'y': yF * 3,
+            'r': 50,
+            'hasMole': false,
+        })
+    }
+}
+
+setInterval(wakeMoles, 2000);
+
+function wakeMoles(){
+    if(!startGameFlag) return;
+    holes[moleIndex].hasMole = false;
+    moleIndex = Math.floor(Math.random() * 5);
+    holes[moleIndex].hasMole = true;
+    canHit = true;
+    updateScore();
+}
+
+
+let usernameInput, registerButton, startButton;
+function createRegistration() {
+    usernameInput = createInput();
+    usernameInput.position(20, 65);
+  
+    registerButton = createButton('submit');
+    registerButton.position(usernameInput.x + usernameInput.width, 65);
+    registerButton.mousePressed(registerUser);
+    
+    textAlign(CENTER);
+    textSize(50);
+}
+
+function registerUser(username) {
+    console.log(usernameInput.value())
+    socket.emit('register user', usernameInput.value());
+}
+
+function startGame() {
+    startGameFlag = true;
+    startButton.hide();
+    updateScore();
+}
+
+let scoreText;
+function updateScore(){
+    console.log(pad(hit,3))
+    if(scoreText) scoreText.hide();
+    scoreText = createButton(pad(hit,3));
+    scoreText.position((windowWidth - canvasWidth) / 2, 0);
+    scoreText.size(canvas.width, (windowHeight - canvasHeight) / 2)
+    scoreText.style('font-family', 'Courier New');
+    scoreText.style('font-size', (windowHeight - canvasHeight)/4);
+}
+
+function pad(num, size) {
+    var s = num+"";
+    while (s.length < size) s = "0" + s;
+    return s;
+}
+
+socket.on('user registered', (data) => {
+    usernameInput.hide();
+    registerButton.hide();
+
+    startButton = createButton('Start');
+    startButton.position((windowWidth - canvasWidth) / 2, 0);
+    startButton.size(canvas.width, (windowHeight - canvasHeight) / 2)
+    startButton.mousePressed(startGame);
+})
+
+socket.on('scoreboard', (data) => {
+    console.log(data)
+})

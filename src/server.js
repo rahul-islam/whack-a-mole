@@ -30,6 +30,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 let rawdata = fs.readFileSync('./samples/dataframe.json');
 // aruco-ip map
 var univesalDataMap = {};
+var scoreboard = {};
 
 if (config.env === "development") {
   univesalDataMap = JSON.parse(rawdata);
@@ -41,6 +42,7 @@ let vidList = ['./assets/1.mp4', './assets/2.mp4', './assets/3.mp4']
 
 io.on('connection', (socket) => {
   var arucoRegistration = false;
+  var usernameRegistration = false;
 
   var vidId = vidList.pop();
   console.log('vidId', vidId)
@@ -96,4 +98,37 @@ io.on('connection', (socket) => {
     }
     vidList.push(socket.vidId)
   });
+
+  socket.on('hit', (data) => {
+    if (!socket.username) return;
+    scoreboard[socket.username] = data
+    console.log(scoreboard)
+    // emit in user channel also
+    socket.emit('scoreboard', scoreboard);
+  });
+
+  socket.on('register user', (username) => {
+    if (usernameRegistration) return;
+
+    // we store the aruco id in the socket session for this client
+    socket.username = username;
+    usernameRegistration = true;
+    socket.emit('user registered', {
+      username
+    });
+    // echo globally (all clients) that a device has connected
+    socket.broadcast.emit('user joined', {
+      username: socket.username,
+    });
+    console.info(username, 'user registered')
+  });
+
+
 });
+
+// setInterval(function(){ 
+//   io.emit('mole', {
+//     'mole': Math.floor(Math.random() * 3), 
+//     'canHit': true
+//   });
+// }, 2000);
