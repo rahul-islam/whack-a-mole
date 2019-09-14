@@ -32,41 +32,30 @@ let rawdata = fs.readFileSync('./samples/dataframe.json');
 var univesalDataMap = {};
 var scoreboard = {};
 
-if (config.env === "development") {
-  univesalDataMap = JSON.parse(rawdata);
-}
+// if (config.env === "development") {
+//   univesalDataMap = JSON.parse(rawdata);
+// }
 
 console.info('Dataframe\t->', univesalDataMap);
 
-let vidList = ['./assets/1.mp4', './assets/2.mp4', './assets/3.mp4']
+let playerList = ['0', '1']
 
 io.on('connection', (socket) => {
   var arucoRegistration = false;
   var usernameRegistration = false;
 
-  var vidId = vidList.pop();
-  console.log('vidId', vidId)
-  socket.vidId = vidId;
-  socket.emit('vidId', vidId)
+  var playerId = playerList.pop();
+  console.log('playerId', playerId)
+  socket.playerId = playerId;
+  socket.emit('playerId', playerId)
 
   // when the client emits 'dataframe', this listens and executes
   socket.on('dataframe', (data) => {
-    if (!socket.arucoId) return;
-    univesalDataMap[socket.arucoId] = data
+    if (!socket.playerId) return;
+    univesalDataMap[socket.playerId ^ 1] = data
     console.log(univesalDataMap)
     // emit in user channel also
-    socket.emit('dataframe', univesalDataMap);
-
-    // we tell the client to execute 'dataframe'
-    // socket.broadcast.emit('dataframe', univesalDataMap);
-    // fs.appendFile("./pose_test_6.json", JSON.stringify(univesalDataMap, null, 4), (err) => {
-    //   if (err) {
-    //       console.error(err);
-    //       return;
-    //     };
-    //    console.log("File has been created");
-    //   });
-
+    socket.broadcast.emit('dataframe', univesalDataMap);
   });
 
   // when the client emits 'register aruco', this listens and executes
@@ -96,7 +85,7 @@ io.on('connection', (socket) => {
       });
 
     }
-    vidList.push(socket.vidId)
+    playerList.push(socket.playerId)
   });
 
   socket.on('hit', (data) => {
