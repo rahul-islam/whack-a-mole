@@ -105,95 +105,81 @@
 // }
 
 
-// var holes = [];
-// function initHoles(nos) {
-//     var xF = canvas.width/6
-//     var yF = canvas.width/8
+var holes = [];
+function initHoles(nos) {
+    var xF = width / 6
+    var yF = width / 8
 
-//     for (let j = 0; j < nos; j++) {
-//         holes.push({
-//             'x': xF + 2 * j * xF,
-//             'y': yF,
-//             'r': 50,
-//             'hasMole': false,
-//         })
-//     }
-//     for (let j = 0; j < nos - 1; j++) {
-//         holes.push({
-//             'x': 2*xF + 2 * j * xF,
-//             'y': yF * 3,
-//             'r': 50,
-//             'hasMole': false,
-//         })
-//     }
-// }
+    for (let j = 0; j < nos; j++) {
+        holes.push({
+            'x': xF + 2 * j * xF,
+            'y': yF,
+            'r': 50,
+            'hasMole': false,
+        })
+    }
+    for (let j = 0; j < nos - 1; j++) {
+        holes.push({
+            'x': 2 * xF + 2 * j * xF,
+            'y': yF * 3,
+            'r': 50,
+            'hasMole': false,
+        })
+    }
+}
 
-// setInterval(wakeMoles, 2000);
+setInterval(wakeMoles, 2000);
 
-// function wakeMoles(){
-//     if(!startGameFlag) return;
-//     holes[moleIndex].hasMole = false;
-//     moleIndex = Math.floor(Math.random() * 5);
-//     holes[moleIndex].hasMole = true;
-//     canHit = true;
-//     updateScore();
-// }
+function wakeMoles() {
+    if (!startGameFlag) return;
+    holes[moleIndex].hasMole = false;
+    moleIndex = Math.floor(Math.random() * 5);
+    holes[moleIndex].hasMole = true;
+    canHit = true;
+    updateScore();
+}
 
 
-// let usernameInput, registerButton, startButton;
-// function createRegistration() {
-//     usernameInput = createInput();
-//     usernameInput.position(20, 65);
+let usernameInput, registerButton, startButton;
+function createRegistration() {
+    usernameInput = createInput();
+    usernameInput.position(20, 65);
 
-//     registerButton = createButton('submit');
-//     registerButton.position(usernameInput.x + usernameInput.width, 65);
-//     registerButton.mousePressed(registerUser);
+    registerButton = createButton('submit');
+    registerButton.position(usernameInput.x + usernameInput.width, 65);
+    registerButton.mousePressed(registerUser);
 
-//     textAlign(CENTER);
-//     textSize(50);
-// }
+    textAlign(CENTER);
+    textSize(50);
+}
 
-// function registerUser(username) {
-//     console.log(usernameInput.value())
-//     socket.emit('register user', usernameInput.value());
-// }
+function registerUser(username) {
+    console.log(usernameInput.value())
+    socket.emit('register user', usernameInput.value());
+}
 
-// function startGame() {
-//     startGameFlag = true;
-//     startButton.hide();
-//     updateScore();
-// }
+function startGame() {
+    startGameFlag = true;
+    startButton.hide();
+    updateScore();
+}
 
-// let scoreText;
-// function updateScore(){
-//     console.log(pad(hit,3))
-//     if(scoreText) scoreText.hide();
-//     scoreText = createButton(pad(hit,3));
-//     scoreText.position((windowWidth - canvasWidth) / 2, 0);
-//     scoreText.size(canvas.width, (windowHeight - canvasHeight) / 2)
-//     scoreText.style('font-family', 'Courier New');
-//     scoreText.style('font-size', (windowHeight - canvasHeight)/4);
-// }
+let scoreText;
+function updateScore() {
+    console.log(pad(hit, 3))
+    if (scoreText) scoreText.hide();
+    scoreText = createButton(pad(hit, 3));
+    scoreText.position((windowWidth - canvasWidth) / 2, 0);
+    scoreText.size(width, (windowHeight - canvasHeight) / 2)
+    scoreText.style('font-family', 'Courier New');
+    scoreText.style('font-size', (windowHeight - canvasHeight) / 4);
+}
 
-// function pad(num, size) {
-//     var s = num+"";
-//     while (s.length < size) s = "0" + s;
-//     return s;
-// }
-
-// socket.on('user registered', (data) => {
-//     usernameInput.hide();
-//     registerButton.hide();
-
-//     startButton = createButton('Start');
-//     startButton.position((windowWidth - canvasWidth) / 2, 0);
-//     startButton.size(canvas.width, (windowHeight - canvasHeight) / 2)
-//     startButton.mousePressed(startGame);
-// })
-
-// socket.on('scoreboard', (data) => {
-//     console.log(data)
-// })
+function pad(num, size) {
+    var s = num + "";
+    while (s.length < size) s = "0" + s;
+    return s;
+}
 
 // Copyright (c) 2018 ml5
 //
@@ -216,8 +202,18 @@ var videoHeight = 480;
 
 var canvasWidth, canvasHeight, Rx, Ry = 0;
 
-function preload(){
+let missed = 0;
+let hit = 0;
+let canHit = true;
+var moleIndex = 0;
+var hand, handx, handy, correct, gameFont;
+var startGameFlag = false;
 
+
+function preload() {
+    hand = loadImage("./images/thanos.gif");
+    correct = loadSound('./sounds/correct.mp3');
+    gameFont = loadFont('./fonts/PixelMiners-KKal.otf');
 }
 
 function setup() {
@@ -236,10 +232,12 @@ function setup() {
     Rx = canvasWidth / videoWidth
     Ry = canvasHeight / videoHeight
 
-    createCanvas(canvasWidth, canvasHeight);
+    var cnv = createCanvas(canvasWidth, canvasHeight);
+    cnv.position(x, y);
+    background(255, 0, 200);
 
     let constraints;
-    if(navigator.deviceMemory == 8){
+    if (navigator.deviceMemory == 8) {
         constraints = VIDEO
     } else {
         constraints = {
@@ -266,6 +264,11 @@ function setup() {
     // Hide the video element, and just show the canvas
     video.hide();
 
+
+    // Define Number of Holes to create
+    initHoles(3);
+    // createRegistration();
+    socket.emit('register user', playerId);
     requestAnimationFrame(tick);
 }
 
@@ -277,15 +280,22 @@ function tick() {
     requestAnimationFrame(tick);
     // image(video, 0, 0, width, height);
     clear();
+
+    if (startGameFlag) {
+        // console.log('lol')
+        drawHole();
+        evaluateHit();
+    }
+    // drawHole();
     // We can call both functions to draw all keypoints and the skeletons
     // drawKeypoints();
     // drawSkeleton();
 
-    if(playerInViewPose){
+    if (playerInViewPose) {
         sendDataFrame(playerInViewPose)
     }
 
-    if(playerPose){
+    if (playerPose) {
         drawPlayerKeypoints()
         drawPlayerSkeleton()
     }
@@ -379,7 +389,7 @@ function assignPlayerInViewPose(poses) {
     let confidence = 0;
     for (let index = 0; index < poses.length; index++) {
         const pose = poses[index];
-        if(pose.pose.rightWrist.confidence > confidence){
+        if (pose.pose.rightWrist.confidence > confidence) {
             confidence = pose.pose.rightWrist.confidence;
             playerInViewPose = pose;
         }
@@ -387,7 +397,61 @@ function assignPlayerInViewPose(poses) {
     // console.log(playerInViewPose, confidence)
 }
 
-const sendDataFrame = (playerInViewPose) => {  
+function drawHole() {
+    for (let index = 0; index < holes.length; index++) {
+        const hole = holes[index];
+        if (hole.hasMole) {
+            let c = color(65); // Update 'c' with grayscale value
+            fill(c); // Use updated 'c' as fill color
+            circle(hole.x, hole.y, hole.r);
+        } else {
+            let c = color(255, 204, 0);
+            fill(c);
+            circle(hole.x, hole.y, hole.r);
+        }
+    }
+}
+
+function isInside(circle_x, circle_y, rad, x, y) {
+    if ((x - circle_x) * (x - circle_x) +
+        (y - circle_y) * (y - circle_y) <= rad * rad)
+        return true;
+    else
+        return false;
+}
+
+function evaluateHit() {
+    if (playerPose && playerPose[0].pose.rightWrist.confidence > 0.4) {
+        // var rNorm = normalize_coords(playerPose.pose.rightWrist.x, playerPose.pose.rightWrist.y)
+        // handx = rNorm[0]*Rx*canvas.width
+        // handy = rNorm[1]*Ry*canvas.height
+        var isHit = isInside(holes[moleIndex].x, holes[moleIndex].y, holes[moleIndex].r, playerPose[0].pose.rightWrist.x, playerPose[0].pose.rightWrist.y);
+
+        if (isHit && holes[moleIndex].hasMole && canHit) {
+            hit = hit + 10;
+            canHit = false;
+            hitPlay()
+            // wakeMoles()
+            socket.emit('hit', {
+                hit,
+                missed,
+            });
+        }
+    }
+}
+
+function hitPlay() {
+    if (correct.isPlaying()) {
+        // .isPlaying() returns a boolean
+        correct.stop();
+        //   background(255, 0, 0);
+    } else {
+        correct.play();
+        //   background(0, 255, 0);
+    }
+}
+
+const sendDataFrame = (playerInViewPose) => {
     // console.log(playerInViewPose)
     socket.emit('dataframe', {
         pose: playerInViewPose
@@ -396,11 +460,26 @@ const sendDataFrame = (playerInViewPose) => {
 
 socket.on('dataframe', (data) => {
     console.log('Pose Recived', data[playerId])
-    playerPose = [data[playerId].pose];    
+    playerPose = [data[playerId].pose];
 });
 
 
 socket.on('playerId', (data) => {
     console.log('playerId =>', data)
     playerId = data;
+    // socket.emit('register user', playerId);
+})
+
+socket.on('user registered', (data) => {
+    // usernameInput.hide();
+    // registerButton.hide();
+
+    startButton = createButton('Start');
+    startButton.position((windowWidth - canvasWidth) / 2, 0);
+    startButton.size(width, (windowHeight - canvasHeight) / 2)
+    startButton.mousePressed(startGame);
+})
+
+socket.on('scoreboard', (data) => {
+    console.log(data)
 })
