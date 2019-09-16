@@ -206,14 +206,15 @@ let missed = 0;
 let hit = 0;
 let canHit = true;
 var moleIndex = 0;
-var hand, handx, handy, correct, gameFont;
+var hand, handx, handy, correct, gameFont, mole;
 var startGameFlag = false;
 
 
 function preload() {
-    hand = loadImage("./images/thanos.gif");
+    hand = loadImage("./images/hammer.png");
     correct = loadSound('./sounds/correct.mp3');
     gameFont = loadFont('./fonts/PixelMiners-KKal.otf');
+    mole = loadImage("./images/mole.png");
 }
 
 function setup() {
@@ -280,7 +281,7 @@ function tick() {
     requestAnimationFrame(tick);
     // image(video, 0, 0, width, height);
     clear();
-
+    background(200)
     if (startGameFlag) {
         // console.log('lol')
         drawHole();
@@ -296,6 +297,10 @@ function tick() {
     }
 
     if (playerPose) {
+        hand.resize(50, 50);
+        image(hand, handx - 25, handy - 45); //hole.x - 25, hole.y - 45
+
+
         drawPlayerKeypoints()
         drawPlayerSkeleton()
     }
@@ -404,6 +409,9 @@ function drawHole() {
             let c = color(65); // Update 'c' with grayscale value
             fill(c); // Use updated 'c' as fill color
             circle(hole.x, hole.y, hole.r);
+            image(mole, hole.x - 25, hole.y - 45);
+            mole.resize(50, 100);
+
         } else {
             let c = color(255, 204, 0);
             fill(c);
@@ -461,6 +469,8 @@ const sendDataFrame = (playerInViewPose) => {
 socket.on('dataframe', (data) => {
     console.log('Pose Recived', data[playerId])
     playerPose = [data[playerId].pose];
+    handx = playerPose[0].pose.rightWrist.x
+    handy = playerPose[0].pose.rightWrist.y
 });
 
 
