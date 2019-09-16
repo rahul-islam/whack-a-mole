@@ -216,7 +216,7 @@ var videoHeight = 480;
 
 var canvasWidth, canvasHeight, Rx, Ry = 0;
 
-function preload(){
+function preload() {
 
 }
 
@@ -224,8 +224,11 @@ function setup() {
     // aspect ratio 4:3
     // width x height
     // 640 x 480
-    canvasWidth = screen.width/2 // > videoWidth ? videoWidth: screen.width;
-    canvasHeight = screen.height/2 // canvasWidth * 0.75;
+    canvasWidth = screen.width // 2 // > videoWidth ? videoWidth: screen.width;
+    canvasHeight = screen.height // 2 // canvasWidth * 0.75;
+
+    videoWidth = canvasWidth / 2;
+    videoHeight = videoHeight * 0.75
 
     var x = (windowWidth - canvasWidth) / 2;
     var y = (windowHeight - canvasHeight) / 2;
@@ -236,8 +239,8 @@ function setup() {
     Ry = canvasHeight / videoHeight
 
     var cnv = createCanvas(canvasWidth, screen.height);
-    cnv.position(canvasWidth,0)
- 
+    cnv.position(0, 0)
+
     if (navigator.deviceMemory == 8) {
         constraints = VIDEO
     } else {
@@ -252,8 +255,8 @@ function setup() {
     }
     console.log(constraints)
     video = createCapture(constraints);
-    video.size(canvasWidth, screen.height);
-    video.position(0,0)
+    video.size(videoWidth, videoHeight);
+    video.position(0, 0)
     // Create a new poseNet method with a single detection
     poseNet = ml5.poseNet(video, modelReady);
     // This sets up an event that fills the global variable "poses"
@@ -263,7 +266,7 @@ function setup() {
         poses = results;
     });
     // Hide the video element, and just show the canvas
-    // video.hide();
+    video.hide();
 
     requestAnimationFrame(tick);
 }
@@ -276,20 +279,24 @@ function modelReady() {
 
 function tick() {
     requestAnimationFrame(tick);
-    // image(video, 0, 0, width, height);
-    clear();
     background(200)
+    image(video, 0, canvasHeight - videoHeight, videoWidth, videoHeight);
+    // clear();
+
     // We can call both functions to draw all keypoints and the skeletons
     // drawKeypoints();
     // drawSkeleton();
 
-    if(playerInViewPose){
+    if (playerInViewPose) {
         sendDataFrame(playerInViewPose)
+        // We can call both functions to draw all keypoints and the skeletons
+        drawKeypoints(0, canvasHeight - videoHeight);
+        drawSkeleton(0, canvasHeight - videoHeight);
     }
 
-    if(playerPose){
-        drawPlayerKeypoints()
-        drawPlayerSkeleton()
+    if (playerPose) {
+        drawPlayerKeypoints(canvasWidth / 2, canvasHeight - videoHeight)
+        drawPlayerSkeleton(canvasWidth / 2, canvasHeight - videoHeight)
     }
 }
 
@@ -310,7 +317,7 @@ function tick() {
 // }
 
 // A function to draw ellipses over the detected keypoints
-function drawKeypoints() {
+function drawKeypoints(padWidth, padHeight) {
     // Loop through all the poses detected
     for (let i = 0; i < poses.length; i++) {
         // For each pose detected, loop through all the keypoints
@@ -322,14 +329,14 @@ function drawKeypoints() {
             if (keypoint.score > 0.2) {
                 fill(255, 0, 0);
                 noStroke();
-                ellipse(keypoint.position.x, keypoint.position.y, 10, 10);
+                ellipse(keypoint.position.x + padWidth, keypoint.position.y + padHeight, 10, 10);
             }
         }
     }
 }
 
 // A function to draw ellipses over the detected keypoints
-function drawPlayerKeypoints() {
+function drawPlayerKeypoints(padWidth, padHeight) {
     // Loop through all the poses detected
     for (let i = 0; i < playerPose.length; i++) {
         // For each pose detected, loop through all the keypoints
@@ -341,14 +348,14 @@ function drawPlayerKeypoints() {
             if (keypoint.score > 0.2) {
                 fill(255, 0, 0);
                 noStroke();
-                ellipse(keypoint.position.x, keypoint.position.y, 10, 10);
+                ellipse(keypoint.position.x + padWidth, keypoint.position.y + padHeight, 10, 10);
             }
         }
     }
 }
 
 // A function to draw the skeletons
-function drawPlayerSkeleton() {
+function drawPlayerSkeleton(padWidth, padHeight) {
     // Loop through all the skeletons detected
     for (let i = 0; i < playerPose.length; i++) {
         let skeleton = playerPose[i].skeleton;
@@ -357,31 +364,31 @@ function drawPlayerSkeleton() {
             let partA = skeleton[j][0];
             let partB = skeleton[j][1];
             stroke(255, 0, 0);
-            line(partA.position.x, partA.position.y, partB.position.x, partB.position.y);
+            line(partA.position.x + padWidth, partA.position.y + padHeight, partB.position.x + padWidth, partB.position.y + padHeight);
         }
     }
 }
 
 // A function to draw the skeletons
-// function drawSkeleton() {
-//     // Loop through all the skeletons detected
-//     for (let i = 0; i < poses.length; i++) {
-//         let skeleton = poses[i].skeleton;
-//         // For every skeleton, loop through all body connections
-//         for (let j = 0; j < skeleton.length; j++) {
-//             let partA = skeleton[j][0];
-//             let partB = skeleton[j][1];
-//             stroke(255, 0, 0);
-//             line(partA.position.x, partA.position.y, partB.position.x, partB.position.y);
-//         }
-//     }
-// }
+function drawSkeleton(padWidth, padHeight) {
+    // Loop through all the skeletons detected
+    for (let i = 0; i < poses.length; i++) {
+        let skeleton = poses[i].skeleton;
+        // For every skeleton, loop through all body connections
+        for (let j = 0; j < skeleton.length; j++) {
+            let partA = skeleton[j][0];
+            let partB = skeleton[j][1];
+            stroke(255, 0, 0);
+            line(partA.position.x + padWidth, partA.position.y + padHeight, partB.position.x + padWidth, partB.position.y + padHeight);
+        }
+    }
+}
 
 function assignPlayerInViewPose(poses) {
     let confidence = 0;
     for (let index = 0; index < poses.length; index++) {
         const pose = poses[index];
-        if(pose.pose.rightWrist.confidence > confidence){
+        if (pose.pose.rightWrist.confidence > confidence) {
             confidence = pose.pose.rightWrist.confidence;
             playerInViewPose = pose;
         }
@@ -389,7 +396,7 @@ function assignPlayerInViewPose(poses) {
     // console.log(playerInViewPose, confidence)
 }
 
-const sendDataFrame = (playerInViewPose) => {  
+const sendDataFrame = (playerInViewPose) => {
     // console.log(playerInViewPose)
     socket.emit('dataframe', {
         pose: playerInViewPose
@@ -398,7 +405,7 @@ const sendDataFrame = (playerInViewPose) => {
 
 socket.on('dataframe', (data) => {
     console.log('Pose Recived', data[playerId])
-    playerPose = [data[playerId].pose];    
+    playerPose = [data[playerId].pose];
 });
 
 
