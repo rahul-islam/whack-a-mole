@@ -270,6 +270,8 @@ function setup() {
 
 function modelReady() {
     select('#status').html('Model Loaded');
+    select('#deviceId').html('Device Id :> ' + playerId);
+    select('#poseSharedBy').html('Pose Shared By :> ' + String(playerId ^ 1));
 }
 
 function tick() {
