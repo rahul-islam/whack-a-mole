@@ -211,7 +211,7 @@ var startGameFlag = false;
 
 
 function preload() {
-    hand = loadImage("./images/hammer.png");
+    hand = loadImage("./images/thor.png");
     correct = loadSound('./sounds/correct.mp3');
     gameFont = loadFont('./fonts/PixelMiners-KKal.otf');
     mole = loadImage("./images/mole.png");
