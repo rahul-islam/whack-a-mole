@@ -18,8 +18,8 @@
 // var poses_received = {}; //pose recieved from server using fetchPoseButton and socket 2
 // var keypoints_fetched = {};
 // var human_pose_fetched = {};
-// var scale_x = 100;
-// var scale_y = 100;
+var scale_x = 300;
+var scale_y = 300;
 
 // // var norm_X = 0.0;
 // // var norm_Y = 0.0;
@@ -220,6 +220,19 @@ function preload() {
 
 }
 
+// norm_coords_fetched = normalize_coords(keypoint.position.x,keypoint.position.y);
+// x_norm_fetched = norm_coords_fetched[0];
+// y_norm_feteched = norm_coords_fetched[1];
+// ellipse((x_norm_fetched * Rx*scale_x)+100, (y_norm_feteched* Ry*scale_y)+100, 10, 10);
+
+function normalizeCoordinates(x, y, width, height) {
+    x /= width;
+    y /= height;
+    // console.log('norm_X is::',norm_X)
+    return [x * (canvasWidth/width) * scale_x, y * (canvasHeight/height) * scale_y];
+
+}
+
 function setup() {
     // aspect ratio 4:3
     // width x height
@@ -272,6 +285,8 @@ function setup() {
 }
 
 function modelReady() {
+    fill(0);
+    text('Model Loaded', 0, 0);
     select('#status').html('Model Loaded');
     select('#deviceId').html('Device Id :> ' + playerId);
     select('#poseSharedBy').html('Pose Shared By :> ' + String(playerId ^ 1));
@@ -295,8 +310,8 @@ function tick() {
     }
 
     if (playerPose) {
-        drawPlayerKeypoints(canvasWidth / 2, canvasHeight - videoHeight)
-        drawPlayerSkeleton(canvasWidth / 2, canvasHeight - videoHeight)
+        drawPlayerKeypointsNormalized(canvasWidth / 2, canvasHeight - videoHeight)
+        drawPlayerSkeletonNormalized(canvasWidth / 2, canvasHeight - videoHeight)
     }
 }
 
@@ -354,6 +369,26 @@ function drawPlayerKeypoints(padWidth, padHeight) {
     }
 }
 
+// A function to draw ellipses over the detected keypoints
+function drawPlayerKeypointsNormalized(padWidth, padHeight) {
+    // Loop through all the poses detected
+    for (let i = 0; i < playerPose.length; i++) {
+        // For each pose detected, loop through all the keypoints
+        let pose = playerPose[i].pose;
+        for (let j = 0; j < pose.keypoints.length; j++) {
+            // A keypoint is an object describing a body part (like rightArm or leftShoulder)
+            let keypoint = pose.keypoints[j];
+            // Only draw an ellipse is the pose probability is bigger than 0.2
+            if (keypoint.score > 0.2) {
+                fill(255, 0, 0);
+                noStroke();
+                var pos = normalizeCoordinates(keypoint.position.x + playerPose[i].padWidth, keypoint.position.y + playerPose[i].padHeight, playerPose[i].canvasWidth, playerPose[i].canvasHeight)
+                ellipse(pos[0] + padWidth, pos[1] + padHeight, 5, 5);            
+            }
+        }
+    }
+}
+
 // A function to draw the skeletons
 function drawPlayerSkeleton(padWidth, padHeight) {
     // Loop through all the skeletons detected
@@ -368,6 +403,23 @@ function drawPlayerSkeleton(padWidth, padHeight) {
         }
     }
 }
+
+function drawPlayerSkeletonNormalized(padWidth, padHeight) {
+    // Loop through all the skeletons detected
+    for (let i = 0; i < playerPose.length; i++) {
+        let skeleton = playerPose[i].skeleton;
+        // For every skeleton, loop through all body connections
+        for (let j = 0; j < skeleton.length; j++) {
+            let partA = skeleton[j][0];
+            let partB = skeleton[j][1];
+            stroke(255, 0, 0);
+            var posA = normalizeCoordinates(partA.position.x + playerPose[i].padWidth, partA.position.y + playerPose[i].padHeight, playerPose[i].canvasWidth, playerPose[i].canvasHeight)
+            var posB = normalizeCoordinates(partB.position.x + playerPose[i].padWidth, partB.position.y + playerPose[i].padHeight, playerPose[i].canvasWidth, playerPose[i].canvasHeight)
+            line(posA[0] + padWidth, posA[1] + padHeight, posB[0] + padWidth, posB[1] + padHeight);
+        }
+    }
+}
+
 
 // A function to draw the skeletons
 function drawSkeleton(padWidth, padHeight) {
@@ -394,6 +446,10 @@ function assignPlayerInViewPose(poses) {
         }
     }
     // console.log(playerInViewPose, confidence)
+    playerInViewPose.canvasWidth = canvasWidth;
+    playerInViewPose.canvasHeight = canvasHeight;
+    playerInViewPose.padWidth = canvasWidth / 2;
+    playerInViewPose.padHeight = canvasHeight - videoHeight;
 }
 
 const sendDataFrame = (playerInViewPose) => {
