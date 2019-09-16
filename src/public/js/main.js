@@ -224,9 +224,8 @@ function setup() {
     // aspect ratio 4:3
     // width x height
     // 640 x 480
-
-    canvasWidth = screen.width > videoWidth ? videoWidth : screen.width;
-    canvasHeight = canvasWidth * 0.75;
+    canvasWidth = screen.width/2 // > videoWidth ? videoWidth: screen.width;
+    canvasHeight = screen.height/2 // canvasWidth * 0.75;
 
     var x = (windowWidth - canvasWidth) / 2;
     var y = (windowHeight - canvasHeight) / 2;
@@ -236,10 +235,10 @@ function setup() {
     Rx = canvasWidth / videoWidth
     Ry = canvasHeight / videoHeight
 
-    createCanvas(canvasWidth, canvasHeight);
-
-    let constraints;
-    if(navigator.deviceMemory == 8){
+    var cnv = createCanvas(canvasWidth, screen.height);
+    cnv.position(canvasWidth,0)
+ 
+    if (navigator.deviceMemory == 8) {
         constraints = VIDEO
     } else {
         constraints = {
@@ -253,8 +252,8 @@ function setup() {
     }
     console.log(constraints)
     video = createCapture(constraints);
-    video.size(width, height);
-
+    video.size(canvasWidth, screen.height);
+    video.position(0,0)
     // Create a new poseNet method with a single detection
     poseNet = ml5.poseNet(video, modelReady);
     // This sets up an event that fills the global variable "poses"
@@ -264,7 +263,7 @@ function setup() {
         poses = results;
     });
     // Hide the video element, and just show the canvas
-    video.hide();
+    // video.hide();
 
     requestAnimationFrame(tick);
 }
@@ -277,6 +276,7 @@ function tick() {
     requestAnimationFrame(tick);
     // image(video, 0, 0, width, height);
     clear();
+    background(200)
     // We can call both functions to draw all keypoints and the skeletons
     // drawKeypoints();
     // drawSkeleton();

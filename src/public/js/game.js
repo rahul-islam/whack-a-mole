@@ -22,10 +22,10 @@ function tick() {
     // }
     image(video, 0, 0, canvas.width, canvas.height);
 
-    if(startGameFlag){
-        drawHole();
-        evaluateHit();    
-    }
+    // if(startGameFlag){
+    //     drawHole();
+    //     evaluateHit();    
+    // }
 
     // image(hand, handx, handy);
 
@@ -52,11 +52,11 @@ function tick() {
     if (!enrolledMarker) {
         // drawCorners(markers); //marker corners drawn
         // drawId(markers); //marker id written
-        // drawKeypoints(); //pose keypoints drawn
-        // drawSkeleton(["rightWrist", "rightElbow", "rightShoulder"]); //pose skeleton drawn
-        drawArmKeypoints(); //pose keypoints drawn
+        drawKeypoints(); //pose keypoints drawn
+        drawSkeleton(); //pose skeleton drawn
+        // drawArmKeypoints(); //pose keypoints drawn
         // drawArmSkeleton(); //pose skeleton drawn
-        //fetched skeleton is drawn
+        // fetched skeleton is drawn
     }
 
     // if (Object.keys(keypoints_fetched).length != 0 && keypoints_fetched.constructor === Object != 0) {
@@ -389,7 +389,7 @@ function drawSkeleton(partToDraw) {
         let skeleton = poses[i].skeleton;
         // For every skeleton, loop through all body connections
         for (let j = 0; j < skeleton.length; j++) {
-            if(!partToDraw.indexOf(skeleton[j][0].part) >= 0 && !partToDraw.indexOf(skeleton[j][1].part) >= 0) continue;
+            // if(!partToDraw.indexOf(skeleton[j][0].part) >= 0 && !partToDraw.indexOf(skeleton[j][1].part) >= 0) continue;
             let partA = skeleton[j][0];
             let partB = skeleton[j][1];
             stroke('#14dfe2');
