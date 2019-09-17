@@ -215,7 +215,28 @@ var socket = io();
 var videoWidth = 640;
 var videoHeight = 480;
 
+var captureWidth = 600;
+var captureHeight = 500;
+
 var canvasWidth, canvasHeight, Rx, Ry = 0;
+
+const posnetModelInit = {
+    architecture: 'MobileNetV1',
+    imageScaleFactor: 0.3,
+    outputStride: 16,
+    flipHorizontal: false,
+    minConfidence: 0.15,
+    maxPoseDetections: 5,
+    scoreThreshold: 0.5,
+    nmsRadius: 30,
+    detectionType: 'multiple', // detectionType - Optional. A String value to run 'single' or 'multiple' estimation.
+    inputResolution: 513,
+    multiplier: 0.75,
+    quantBytes: 2
+};
+
+// detectionType - Optional. A String value to run 'single' or 'multiple' estimation.
+const detectionType = 'multiple'
 
 function preload() {
 
@@ -230,7 +251,7 @@ function normalizeCoordinates(x, y, captureWidth, captureHeight) {
     x /= width;
     y /= height;
     // console.log('norm_X is::',norm_X)
-    return [x * (canvasWidth/captureWidth) * scale_x, y * (canvasHeight/captureHeight) * scale_y];
+    return [x * (canvasWidth / captureWidth) * scale_x, y * (canvasHeight / captureHeight) * scale_y];
 
 }
 
@@ -253,13 +274,20 @@ function setup() {
     cnv.position(0, 0)
 
     if (navigator.deviceMemory == 8) {
-        constraints = VIDEO
+        constraints = {
+            video: {
+                facingMode: 'user',
+                width: 600,
+                height: 500,
+            },
+            audio: false,
+        }
     } else {
         constraints = {
             video: {
-                facingMode: {
-                    exact: "environment"
-                }
+                facingMode: 'environment',
+                width: 600,
+                height: 500,
             },
             audio: false,
         }
@@ -270,11 +298,11 @@ function setup() {
 
     console.log('Live Stream(width:height)', video.width, video.height)
     // https://stackoverflow.com/questions/45724955/find-new-coordinates-of-a-point-after-image-resize
-    Rx = videoWidth / 640
-    Ry = videoHeight / 480 
+    Rx = videoWidth / 600
+    Ry = videoHeight / 500
 
     // Create a new poseNet method with a single detection
-    poseNet = ml5.poseNet(video, modelReady);
+    poseNet = ml5.poseNet(video, posnetModelInit, detectionType, modelReady);
     // This sets up an event that fills the global variable "poses"
     // with an array every time new poses are detected
     poseNet.on('pose', function (results) {
@@ -320,9 +348,9 @@ function tick() {
     drawMeta()
 }
 
-function drawMeta(){
-    if(modelLoaded) text('Model Loaded', 0, 10); else text('Model Loading', 0, 10); 
-    if(playerPose){
+function drawMeta() {
+    if (modelLoaded) text('Model Loaded', 0, 10); else text('Model Loading', 0, 10);
+    if (playerPose) {
         text('Device Id :> ' + String(playerId), 0, 22);
         text('Pose Shared By :> ' + String(playerId ^ 1), 0, 34);
     }
@@ -397,7 +425,7 @@ function drawPlayerKeypointsNormalized(padWidth, padHeight) {
                 fill(255, 0, 0);
                 noStroke();
                 var pos = normalizeCoordinates(keypoint.position.x, keypoint.position.y, playerPose[i].captureWidth, playerPose[i].captureHeight)
-                ellipse(pos[0] + padWidth, pos[1] + padHeight, 5, 5);            
+                ellipse(pos[0] + padWidth, pos[1] + padHeight, 5, 5);
             }
         }
     }
@@ -460,13 +488,13 @@ function assignPlayerInViewPose(poses) {
         }
     }
     // console.log(playerInViewPose, confidence)
-    if(playerInViewPose) {
+    if (playerInViewPose) {
         playerInViewPose.canvasWidth = canvasWidth;
         playerInViewPose.canvasHeight = canvasHeight;
         playerInViewPose.padWidth = canvasWidth / 2;
-        playerInViewPose.padHeight = canvasHeight - 480;
-        playerInViewPose.captureWidth = 640;
-        playerInViewPose.captureHeight = 480;
+        playerInViewPose.padHeight = canvasHeight - 500;
+        playerInViewPose.captureWidth = 600;
+        playerInViewPose.captureHeight = 500;
     }
 
 }
