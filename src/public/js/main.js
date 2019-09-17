@@ -18,8 +18,8 @@
 // var poses_received = {}; //pose recieved from server using fetchPoseButton and socket 2
 // var keypoints_fetched = {};
 // var human_pose_fetched = {};
-var scale_x = 300;
-var scale_y = 300;
+var scale_x = 250;
+var scale_y = 250;
 
 // // var norm_X = 0.0;
 // // var norm_Y = 0.0;
@@ -205,6 +205,7 @@ ml5 Example
 PoseNet example using p5.js
 === */
 
+let modelLoaded = false;
 let video;
 let poseNet;
 let playerInViewPose, playerPose, playerId;
@@ -225,11 +226,11 @@ function preload() {
 // y_norm_feteched = norm_coords_fetched[1];
 // ellipse((x_norm_fetched * Rx*scale_x)+100, (y_norm_feteched* Ry*scale_y)+100, 10, 10);
 
-function normalizeCoordinates(x, y, width, height) {
+function normalizeCoordinates(x, y, captureWidth, captureHeight) {
     x /= width;
     y /= height;
     // console.log('norm_X is::',norm_X)
-    return [x * (canvasWidth/width) * scale_x, y * (canvasHeight/height) * scale_y];
+    return [x * (canvasWidth/captureWidth) * scale_x, y * (canvasHeight/captureHeight) * scale_y];
 
 }
 
@@ -247,9 +248,6 @@ function setup() {
     var y = (windowHeight - canvasHeight) / 2;
 
     // console.log(windowWidth, width)
-    // https://stackoverflow.com/questions/45724955/find-new-coordinates-of-a-point-after-image-resize
-    Rx = canvasWidth / videoWidth
-    Ry = canvasHeight / videoHeight
 
     var cnv = createCanvas(canvasWidth, screen.height);
     cnv.position(0, 0)
@@ -268,8 +266,13 @@ function setup() {
     }
     console.log(constraints)
     video = createCapture(constraints);
-    video.size(videoWidth, videoHeight);
     video.position(0, 0)
+
+    console.log('Live Stream(width:height)', video.width, video.height)
+    // https://stackoverflow.com/questions/45724955/find-new-coordinates-of-a-point-after-image-resize
+    Rx = videoWidth / 640
+    Ry = videoHeight / 480 
+
     // Create a new poseNet method with a single detection
     poseNet = ml5.poseNet(video, modelReady);
     // This sets up an event that fills the global variable "poses"
@@ -285,8 +288,7 @@ function setup() {
 }
 
 function modelReady() {
-    fill(0);
-    text('Model Loaded', 0, 0);
+    modelLoaded = true;
     select('#status').html('Model Loaded');
     select('#deviceId').html('Device Id :> ' + playerId);
     select('#poseSharedBy').html('Pose Shared By :> ' + String(playerId ^ 1));
@@ -294,6 +296,7 @@ function modelReady() {
 
 function tick() {
     requestAnimationFrame(tick);
+    // fullscreen(true);
     background(200)
     image(video, 0, canvasHeight - videoHeight, videoWidth, videoHeight);
     // clear();
@@ -313,6 +316,17 @@ function tick() {
         drawPlayerKeypointsNormalized(canvasWidth / 2, canvasHeight - videoHeight)
         drawPlayerSkeletonNormalized(canvasWidth / 2, canvasHeight - videoHeight)
     }
+
+    drawMeta()
+}
+
+function drawMeta(){
+    if(modelLoaded) text('Model Loaded', 0, 10); else text('Model Loading', 0, 10); 
+    if(playerPose){
+        text('Device Id :> ' + String(playerId), 0, 22);
+        text('Pose Shared By :> ' + String(playerId ^ 1), 0, 34);
+    }
+
 }
 
 // function draw() {
@@ -344,7 +358,7 @@ function drawKeypoints(padWidth, padHeight) {
             if (keypoint.score > 0.2) {
                 fill(255, 0, 0);
                 noStroke();
-                ellipse(keypoint.position.x + padWidth, keypoint.position.y + padHeight, 10, 10);
+                ellipse(keypoint.position.x * Rx + padWidth, keypoint.position.y * Ry + padHeight, 5, 5);
             }
         }
     }
@@ -382,7 +396,7 @@ function drawPlayerKeypointsNormalized(padWidth, padHeight) {
             if (keypoint.score > 0.2) {
                 fill(255, 0, 0);
                 noStroke();
-                var pos = normalizeCoordinates(keypoint.position.x + playerPose[i].padWidth, keypoint.position.y + playerPose[i].padHeight, playerPose[i].canvasWidth, playerPose[i].canvasHeight)
+                var pos = normalizeCoordinates(keypoint.position.x, keypoint.position.y, playerPose[i].captureWidth, playerPose[i].captureHeight)
                 ellipse(pos[0] + padWidth, pos[1] + padHeight, 5, 5);            
             }
         }
@@ -413,8 +427,8 @@ function drawPlayerSkeletonNormalized(padWidth, padHeight) {
             let partA = skeleton[j][0];
             let partB = skeleton[j][1];
             stroke(255, 0, 0);
-            var posA = normalizeCoordinates(partA.position.x + playerPose[i].padWidth, partA.position.y + playerPose[i].padHeight, playerPose[i].canvasWidth, playerPose[i].canvasHeight)
-            var posB = normalizeCoordinates(partB.position.x + playerPose[i].padWidth, partB.position.y + playerPose[i].padHeight, playerPose[i].canvasWidth, playerPose[i].canvasHeight)
+            var posA = normalizeCoordinates(partA.position.x, partA.position.y, playerPose[i].captureWidth, playerPose[i].captureHeight)
+            var posB = normalizeCoordinates(partB.position.x, partB.position.y, playerPose[i].captureWidth, playerPose[i].captureHeight)
             line(posA[0] + padWidth, posA[1] + padHeight, posB[0] + padWidth, posB[1] + padHeight);
         }
     }
@@ -431,7 +445,7 @@ function drawSkeleton(padWidth, padHeight) {
             let partA = skeleton[j][0];
             let partB = skeleton[j][1];
             stroke(255, 0, 0);
-            line(partA.position.x + padWidth, partA.position.y + padHeight, partB.position.x + padWidth, partB.position.y + padHeight);
+            line(partA.position.x * Rx + padWidth, partA.position.y * Ry + padHeight, partB.position.x * Rx + padWidth, partB.position.y * Ry + padHeight);
         }
     }
 }
@@ -440,16 +454,21 @@ function assignPlayerInViewPose(poses) {
     let confidence = 0;
     for (let index = 0; index < poses.length; index++) {
         const pose = poses[index];
-        if (pose.pose.rightWrist.confidence > confidence) {
-            confidence = pose.pose.rightWrist.confidence;
+        if (pose.pose.score > confidence) {
+            confidence = pose.pose.score;
             playerInViewPose = pose;
         }
     }
     // console.log(playerInViewPose, confidence)
-    playerInViewPose.canvasWidth = canvasWidth;
-    playerInViewPose.canvasHeight = canvasHeight;
-    playerInViewPose.padWidth = canvasWidth / 2;
-    playerInViewPose.padHeight = canvasHeight - videoHeight;
+    if(playerInViewPose) {
+        playerInViewPose.canvasWidth = canvasWidth;
+        playerInViewPose.canvasHeight = canvasHeight;
+        playerInViewPose.padWidth = canvasWidth / 2;
+        playerInViewPose.padHeight = canvasHeight - 480;
+        playerInViewPose.captureWidth = 640;
+        playerInViewPose.captureHeight = 480;
+    }
+
 }
 
 const sendDataFrame = (playerInViewPose) => {
