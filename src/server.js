@@ -53,7 +53,7 @@ io.on('connection', (socket) => {
   socket.on('dataframe', (data) => {
     if (!socket.playerId) return;
     univesalDataMap[socket.playerId ^ 1] = data
-    console.log(univesalDataMap)
+    // console.log(univesalDataMap)
     // emit in user channel also
     socket.broadcast.emit('dataframe', univesalDataMap);
   });
