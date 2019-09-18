@@ -19,3 +19,6 @@ zips/*
 
 # videos
 src/public/assets/*
+
+client/.cache/*
+client/dist/*

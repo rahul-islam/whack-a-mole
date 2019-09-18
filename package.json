@@ -43,10 +43,11 @@
     "rimraf": "^2.6.3"
   },
   "scripts": {
-    "start": "nodemon src/server.js --exec babel-node --presets es2015,stage-2",
+    "start": "nodemon --watch client/camera.js src/server.js --exec 'yarn run build-camera && babel-node --presets es2015,stage-2'",
     "build": "babel-node tools/run build",
     "lint-js": "eslint --ignore-path .gitignore --ignore-pattern \"!**/.*\" .",
     "lint": "yarn run lint-js",
-    "fix-js": "yarn run lint --fix"
+    "fix-js": "yarn run lint --fix",
+    "build-camera": "cd client && rm -rf dist/ && yarn run build-camera && cp dist/* ../src/public/ -r"
   }
 }
