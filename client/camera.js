@@ -449,6 +449,7 @@ function detectPoseInRealTime(video, net) {
     // scores
     poses.forEach(({score, keypoints}) => {
       if (score >= minPoseConfidence) {
+        sendDataFrame(JSON.parse(JSON.stringify(keypoints)));
         keypoints = fixKeypoints(keypoints, (videoPreviewWidth/videoCaptureWidth), (videoPreviewHeight/videoCaptureHeight))
         if (guiState.output.showPoints) {
           drawKeypoints(keypoints, minPartConfidence, ctx);
@@ -459,13 +460,12 @@ function detectPoseInRealTime(video, net) {
         if (guiState.output.showBoundingBox) {
           drawBoundingBox(keypoints, ctx);
         }
-        sendDataFrame(keypoints)
       }
     });
 
     if (playerPose) {
       console.log('print player pose')
-      var playerKp = fixKeypoints(playerPose, (videoPreviewWidth/videoCaptureWidth), (videoPreviewHeight/videoCaptureHeight), (canvas.width - videoPreviewWidth) + 100, 10)
+      var playerKp = fixKeypoints(playerPose, (videoPreviewWidth/videoCaptureWidth), (videoPreviewHeight/videoCaptureHeight), (canvas.width - videoPreviewWidth), 0)
       if (guiState.output.showPoints) {
         drawKeypoints(playerKp, minPartConfidence, ctx);
       }
