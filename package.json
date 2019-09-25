@@ -48,6 +48,6 @@
     "lint-js": "eslint --ignore-path .gitignore --ignore-pattern \"!**/.*\" .",
     "lint": "yarn run lint-js",
     "fix-js": "yarn run lint --fix",
-    "build-camera": "cd client && rm -rf dist/ && yarn run build-camera && cp dist/* ../src/public/ -r"
+    "build-camera": "cd client && rm -rf dist/ && yarn run build-camera && rm -rf ../src/public/* &&  cp dist/* ../src/public/ -r"
   }
 }
