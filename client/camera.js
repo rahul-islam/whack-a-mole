@@ -19,6 +19,8 @@ import dat from 'dat.gui';
 import Stats from 'stats.js';
 import io from 'socket.io-client';
 
+import {AR} from './js/aruco';
+
 import {drawBoundingBox, drawKeypoints, drawSkeleton, isMobile, toggleLoadingUI, tryResNetButtonName, tryResNetButtonText, updateTryResNetButtonDatGuiCss} from './demo_util';
 
 // const socket = io('https://192.168.43.100:3000/');
@@ -299,10 +301,17 @@ function setupFPS() {
  * Feeds an image to posenet to estimate poses - this is where the magic
  * happens. This function loops with a requestAnimationFrame method.
  */
-function detectPoseInRealTime(video, net) {
+function detectPoseInRealTime(video, net, arucoDetector) {
   const canvas = document.getElementById('output');
   const ctx = canvas.getContext('2d');
 
+  // In memory canvas to store frame foraruco detection
+  const inMemoryCanvas = document.createElement('canvas');
+  const inMemoryCanvasCxt = inMemoryCanvas.getContext('2d');
+
+  inMemoryCanvas.width = videoCaptureWidth; // videoCaptureWidth;
+  inMemoryCanvas.height = videoCaptureHeight; // videoCaptureHeight;
+  
   // since images are being fed from a webcam, we want to feed in the
   // original image and then just flip the keypoints' x coordinates. If instead
   // we flip the image, then correcting left-right keypoint pairs requires a
@@ -422,12 +431,17 @@ function detectPoseInRealTime(video, net) {
         break;
     }
 
+    inMemoryCanvasCxt.drawImage(video, 0, 0);
+    let imageData = inMemoryCanvasCxt.getImageData(0, 0, videoCaptureWidth, videoCaptureHeight);
+    let markers = arucoDetector.detect(imageData);
+    console.log(markers)
+
     // ctx.clearRect(0, 0, 300, 300);
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // ctx.fillRect(20, 20, 150, 100);
-    console.log(playerId)
+    // console.log(playerId)
     // text
     if(playerId){
       ctx.font = "20px";
@@ -509,9 +523,11 @@ export async function bindPage() {
   toggleLoadingUI(false);
 
   let video;
+  let arucoDetector;
 
   try {
     video = await loadVideo();
+    arucoDetector = new AR.Detector();
   } catch (e) {
     let info = document.getElementById('info');
     info.textContent = 'this browser does not support video capture,' +
@@ -522,7 +538,7 @@ export async function bindPage() {
 
   setupGui([], net);
   // setupFPS();
-  detectPoseInRealTime(video, net);
+  detectPoseInRealTime(video, net, arucoDetector);
 }
 
 navigator.getUserMedia = navigator.getUserMedia ||
