@@ -229,3 +229,53 @@ export function drawOffsetVectors(
         [heatmapY, heatmapX], [offsetPointY, offsetPointX], color, scale, ctx);
   }
 }
+
+
+export function drawCorners(markers, ctx){
+  var corners, corner, i, j;
+
+  ctx.lineWidth = 3;
+
+  for (i = 0; i !== markers.length; ++ i){
+    corners = markers[i].corners;
+    
+    ctx.strokeStyle = "red";
+    ctx.beginPath();
+    
+    for (j = 0; j !== corners.length; ++ j){
+      corner = corners[j];
+      ctx.moveTo(corner.x, corner.y);
+      corner = corners[(j + 1) % corners.length];
+      ctx.lineTo(corner.x, corner.y);
+    }
+
+    ctx.stroke();
+    ctx.closePath();
+    
+    ctx.strokeStyle = "green";
+    ctx.strokeRect(corners[0].x - 2, corners[0].y - 2, 4, 4);
+  }
+}
+
+export function drawId(markers, ctx){
+  var corners, corner, x, y, i, j;
+  
+  ctx.strokeStyle = "blue";
+  ctx.lineWidth = 1;
+  
+  for (i = 0; i !== markers.length; ++ i){
+    corners = markers[i].corners;
+    
+    x = Infinity;
+    y = Infinity;
+    
+    for (j = 0; j !== corners.length; ++ j){
+      corner = corners[j];
+      
+      x = Math.min(x, corner.x);
+      y = Math.min(y, corner.y);
+    }
+
+    ctx.strokeText(markers[i].id, x, y)
+  }
+}

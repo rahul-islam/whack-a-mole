@@ -21,7 +21,7 @@ import io from 'socket.io-client';
 
 import {AR} from './js/aruco';
 
-import {drawBoundingBox, drawKeypoints, drawSkeleton, isMobile, toggleLoadingUI, tryResNetButtonName, tryResNetButtonText, updateTryResNetButtonDatGuiCss} from './demo_util';
+import {drawBoundingBox, drawKeypoints, drawSkeleton, isMobile, toggleLoadingUI, tryResNetButtonName, tryResNetButtonText, updateTryResNetButtonDatGuiCss, drawCorners, drawId} from './demo_util';
 
 // const socket = io('https://192.168.43.100:3000/');
 const socket = io();
@@ -113,6 +113,7 @@ const guiState = {
     showSkeleton: true,
     showPoints: true,
     showBoundingBox: false,
+    showAruco: true,
   },
   net: null,
 };
@@ -266,6 +267,7 @@ function setupGui(cameras, net) {
   output.add(guiState.output, 'showSkeleton');
   output.add(guiState.output, 'showPoints');
   output.add(guiState.output, 'showBoundingBox');
+  output.add(guiState.output, 'showAruco')
   // output.open();
 
 
@@ -435,7 +437,9 @@ function detectPoseInRealTime(video, net, arucoDetector) {
     let imageData = inMemoryCanvasCxt.getImageData(0, 0, videoCaptureWidth, videoCaptureHeight);
     let markers = arucoDetector.detect(imageData);
     console.log(markers)
-
+    if(markers){
+      markers = fixMarkers(markers, (videoPreviewWidth/videoCaptureWidth), (videoPreviewHeight/videoCaptureHeight))
+    }
     // ctx.clearRect(0, 0, 300, 300);
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -474,6 +478,10 @@ function detectPoseInRealTime(video, net, arucoDetector) {
         if (guiState.output.showBoundingBox) {
           drawBoundingBox(keypoints, ctx);
         }
+        if (guiState.output.showAruco) {
+          drawCorners(markers, ctx);
+          drawId(markers, ctx)
+        }
       }
     });
 
@@ -497,6 +505,18 @@ function detectPoseInRealTime(video, net, arucoDetector) {
   }
 
   poseDetectionFrame();
+}
+
+function fixMarkers(markers, Rx, Ry, padWidth=0, padHeight=0) {
+  for (let i = 0; i < markers.length; i++) {
+    const corners = markers[i].corners;
+    for (let j = 0; j !== corners.length; ++ j){
+      corners[j].x = corners[j].x * Rx + padWidth;
+      corners[j].y = corners[j].y * Ry + padHeight;
+    }
+    markers[i].corners = corners;
+  }
+  return markers;
 }
 
 function fixKeypoints(keypoints, Rx, Ry, padWidth=0, padHeight=0) {
