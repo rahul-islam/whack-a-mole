@@ -93,6 +93,11 @@
         </video>
         <canvas id="output" />
     </div>
+    <form onsubmit="uts.registerPlayerId();return false;">
+        Device Id:<br>
+        <input type="number" id="playerId">
+        <input type="submit" value="Register">
+    </form>
     <script src="camera.js"></script>
 </body>
 

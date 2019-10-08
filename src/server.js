@@ -38,16 +38,16 @@ var scoreboard = {};
 
 console.info('Dataframe\t->', univesalDataMap);
 
-let playerList = ['0', '1']
+let playerList = []
 
 io.on('connection', (socket) => {
-  var arucoRegistration = false;
+  var playerRegistration = false;
   var usernameRegistration = false;
 
-  var playerId = playerList.pop();
-  console.log('playerId', playerId)
-  socket.playerId = playerId;
-  socket.emit('playerId', playerId)
+  // var playerId = playerList.pop();
+  // console.log('playerId', playerId)
+  // socket.playerId = playerId;
+  // socket.emit('playerId', playerId)
 
   // when the client emits 'dataframe', this listens and executes
   socket.on('dataframe', (data) => {
@@ -56,36 +56,41 @@ io.on('connection', (socket) => {
     // console.log(univesalDataMap)
     // emit in user channel also
     socket.broadcast.emit('dataframe', univesalDataMap);
+    // io.emit('dataframe', univesalDataMap);
   });
 
   // when the client emits 'register aruco', this listens and executes
-  socket.on('register aruco', (arucoId) => {
-    if (arucoRegistration) return;
-
+  socket.on('register playerId', (playerId) => {
+    if (playerRegistration) return;
+    if(playerList.indexOf(playerId) > -1) {
+      socket.emit('playerId', {
+        error: 'player id already exist'
+      });  
+      return;
+    }
     // we store the aruco id in the socket session for this client
-    socket.arucoId = arucoId;
-    arucoRegistration = true;
-    socket.emit('registered', {
-      arucoId
-    });
+    socket.playerId = playerId;
+    playerRegistration = true;
+    playerList.push(playerId);
+    socket.emit('playerId', playerId);
     // echo globally (all clients) that a device has connected
-    socket.broadcast.emit('aruco joined', {
-      arucoId: socket.arucoId,
+    socket.broadcast.emit('player joined', {
+      playerId,
     });
-    console.info(arucoId, 'registered')
+    console.info(playerId, 'joined.')
   });
 
   // when the device disconnects.. perform this
   socket.on('disconnect', () => {
-    if (arucoRegistration) {
+    if (playerRegistration) {
 
       // echo globally that this client has left
-      socket.broadcast.emit('unregister aruco', {
-        arucoId: socket.arucoId,
+      socket.broadcast.emit('unregister playerId', {
+        playerId: socket.playerId,
       });
-
+      console.log(socket.playerId, 'left.')
     }
-    playerList.push(socket.playerId)
+    playerList.pop(socket.playerId)
   });
 
   socket.on('hit', (data) => {

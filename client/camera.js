@@ -436,7 +436,7 @@ function detectPoseInRealTime(video, net, arucoDetector) {
     inMemoryCanvasCxt.drawImage(video, 0, 0);
     let imageData = inMemoryCanvasCxt.getImageData(0, 0, videoCaptureWidth, videoCaptureHeight);
     let markers = arucoDetector.detect(imageData);
-    console.log(markers)
+    // console.log(markers)
     if(markers){
       markers = fixMarkers(markers, (videoPreviewWidth/videoCaptureWidth), (videoPreviewHeight/videoCaptureHeight))
     }
@@ -467,7 +467,7 @@ function detectPoseInRealTime(video, net, arucoDetector) {
     // scores
     poses.forEach(({score, keypoints}) => {
       if (score >= minPoseConfidence) {
-        sendDataFrame(JSON.parse(JSON.stringify(keypoints)));
+        sendDataFrame(JSON.parse(JSON.stringify({score, keypoints})));
         keypoints = fixKeypoints(keypoints, (videoPreviewWidth/videoCaptureWidth), (videoPreviewHeight/videoCaptureHeight))
         if (guiState.output.showPoints) {
           drawKeypoints(keypoints, minPartConfidence, ctx);
@@ -566,11 +566,21 @@ navigator.getUserMedia = navigator.getUserMedia ||
 // kick off the demo
 bindPage();
 
+// aruco
+function getDistance(x1, y1, x2, y2) {
+  var x = x2 - x1
+  var y = y2 - y1
+  var mag = Math.sqrt(x * x + y * y)
+  return mag
+}
+
+
 // socket
 const sendDataFrame = (playerInViewPose) => {
   // console.log(playerInViewPose)
   socket.emit('dataframe', {
-      keypoints: playerInViewPose
+      keypoints: playerInViewPose.keypoints,
+      score: playerInViewPose.score
   });
 }
 
@@ -588,3 +598,9 @@ socket.on('playerId', (data) => {
   console.log('playerId =>', data)
   playerId = data;
 })
+
+// misc
+export function registerPlayerId() {
+  var playerId = document.getElementById('playerId').value;
+  socket.emit('register playerId', playerId);
+}
