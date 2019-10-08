@@ -89,8 +89,14 @@ io.on('connection', (socket) => {
         playerId: socket.playerId,
       });
       console.log(socket.playerId, 'left.')
+
+      // duplicate player handeling
+      var index = playerList.indexOf(socket.playerId);
+ 
+      if (index > -1) {
+         playerList.splice(index, 1);
+      }
     }
-    playerList.pop(socket.playerId)
   });
 
   socket.on('hit', (data) => {

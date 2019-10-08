@@ -595,6 +595,11 @@ socket.on('dataframe', (data) => {
 
 
 socket.on('playerId', (data) => {
+  if(typeof data == 'object') {
+    console.log(data.error) 
+    alert(data.error)
+    return;
+  }
   console.log('playerId =>', data)
   playerId = data;
 })
