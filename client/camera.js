@@ -33,7 +33,7 @@ let videoPreviewWidth, videoPreviewHeight;
 
 const stats = new Stats();
 
-let playerId, playerInViewPose, playerPose;
+let playerId, playerInViewPose, playerPose, sentBy;
 
 
 /**
@@ -436,7 +436,7 @@ function detectPoseInRealTime(video, net, arucoDetector) {
     inMemoryCanvasCxt.drawImage(video, 0, 0);
     let imageData = inMemoryCanvasCxt.getImageData(0, 0, videoCaptureWidth, videoCaptureHeight);
     let markers = arucoDetector.detect(imageData);
-    // console.log(markers)
+    console.log(markers)
     if(markers){
       markers = fixMarkers(markers, (videoPreviewWidth/videoCaptureWidth), (videoPreviewHeight/videoCaptureHeight))
     }
@@ -451,7 +451,7 @@ function detectPoseInRealTime(video, net, arucoDetector) {
       ctx.font = "20px";
       ctx.fillStyle = "white";
       ctx.fillText('Device Id :> ' + playerId, videoPreviewWidth + 2, 12);
-      ctx.fillText('Pose Shared By :> ' + String(playerId ^ 1), videoPreviewWidth + 2, 24);  
+      ctx.fillText('Pose Shared By :> ' + String(sentBy), videoPreviewWidth + 2, 24);  
     }
 
     if (guiState.output.showVideo) {
@@ -462,12 +462,23 @@ function detectPoseInRealTime(video, net, arucoDetector) {
       ctx.restore();
     }
 
+    
     // For each pose (i.e. person) detected in an image, loop through the poses
     // and draw the resulting skeleton and keypoints if over certain confidence
     // scores
     poses.forEach(({score, keypoints}) => {
       if (score >= minPoseConfidence) {
-        sendDataFrame(JSON.parse(JSON.stringify({score, keypoints})));
+        if(markers.length > 0) {
+          var df = JSON.parse(JSON.stringify({
+            score, 
+            keypoints,
+            'playerId': markers[0].id,
+            'sentBy': playerId
+          }));
+          // console.log(df)
+          sendDataFrame(df);
+        }
+
         keypoints = fixKeypoints(keypoints, (videoPreviewWidth/videoCaptureWidth), (videoPreviewHeight/videoCaptureHeight))
         if (guiState.output.showPoints) {
           drawKeypoints(keypoints, minPartConfidence, ctx);
@@ -580,7 +591,9 @@ const sendDataFrame = (playerInViewPose) => {
   // console.log(playerInViewPose)
   socket.emit('dataframe', {
       keypoints: playerInViewPose.keypoints,
-      score: playerInViewPose.score
+      score: playerInViewPose.score,
+      playerId: playerInViewPose.playerId,
+      sentBy: playerInViewPose.sentBy
   });
 }
 
@@ -589,8 +602,11 @@ socket.on('connect', function () {
 });
 
 socket.on('dataframe', (data) => {
-  console.log('Pose Recived', data[playerId])
-  playerPose = data[playerId].keypoints;
+  console.log('Pose Recived', data)
+  if(data[playerId]){
+    playerPose = data[playerId].keypoints;
+    sentBy = data[playerId].sentBy;
+  }
 });
 
 
