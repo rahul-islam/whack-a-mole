@@ -436,8 +436,9 @@ function detectPoseInRealTime(video, net, arucoDetector) {
     inMemoryCanvasCxt.drawImage(video, 0, 0);
     let imageData = inMemoryCanvasCxt.getImageData(0, 0, videoCaptureWidth, videoCaptureHeight);
     let markers = arucoDetector.detect(imageData);
-    console.log(markers)
+    // console.log(markers)
     if(markers){
+      poses = couplePoseMarker(poses, markers, minPoseConfidence);
       markers = fixMarkers(markers, (videoPreviewWidth/videoCaptureWidth), (videoPreviewHeight/videoCaptureHeight))
     }
     // ctx.clearRect(0, 0, 300, 300);
@@ -466,14 +467,14 @@ function detectPoseInRealTime(video, net, arucoDetector) {
     // For each pose (i.e. person) detected in an image, loop through the poses
     // and draw the resulting skeleton and keypoints if over certain confidence
     // scores
-    poses.forEach(({score, keypoints}) => {
+    poses.forEach(({score, keypoints, markerId, sentBy}) => {
       if (score >= minPoseConfidence) {
         if(markers.length > 0) {
           var df = JSON.parse(JSON.stringify({
             score, 
             keypoints,
-            'playerId': markers[0].id,
-            'sentBy': playerId
+            'playerId': markerId,
+            'sentBy': sentBy
           }));
           // console.log(df)
           sendDataFrame(df);
@@ -497,7 +498,7 @@ function detectPoseInRealTime(video, net, arucoDetector) {
     });
 
     if (playerPose) {
-      console.log('print player pose')
+      // console.log('print player pose')
       var playerKp = fixKeypoints(playerPose, (videoPreviewWidth/videoCaptureWidth), (videoPreviewHeight/videoCaptureHeight), (canvas.width - videoPreviewWidth), 0)
       if (guiState.output.showPoints) {
         drawKeypoints(playerKp, minPartConfidence, ctx);
@@ -516,6 +517,26 @@ function detectPoseInRealTime(video, net, arucoDetector) {
   }
 
   poseDetectionFrame();
+}
+
+function couplePoseMarker(poses, markers, minPoseConfidence){
+  // console.log(poses)
+  poses.forEach((pose) => {
+    if (pose.score >= minPoseConfidence) {
+      var markerId, markerDistance = 9999;
+      for (let i = 0; i < markers.length; i++) {
+        const corners = markers[i].corners;
+        const cornerDistance = getDistance(corners[0].x, corners[0].y, pose.keypoints[0].position.x, pose.keypoints[0].position.y)
+        if(markerDistance > cornerDistance){
+          markerDistance = cornerDistance;
+          markerId = markers[i].id
+        }
+      }
+      pose['markerId'] = markerId;
+      pose['sentBy'] = playerId;
+    }
+  });
+  return poses;
 }
 
 function fixMarkers(markers, Rx, Ry, padWidth=0, padHeight=0) {

@@ -55,8 +55,8 @@ io.on('connection', (socket) => {
     univesalDataMap[data.playerId] = data
     // console.log(univesalDataMap)
     // emit in user channel also
-    socket.broadcast.emit('dataframe', univesalDataMap);
-    // io.emit('dataframe', univesalDataMap);
+    // socket.broadcast.emit('dataframe', univesalDataMap);
+    io.emit('dataframe', univesalDataMap);
   });
 
   // when the client emits 'register aruco', this listens and executes
