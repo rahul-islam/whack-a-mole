@@ -26,8 +26,8 @@ import {drawBoundingBox, drawKeypoints, drawSkeleton, isMobile, toggleLoadingUI,
 // const socket = io('https://192.168.43.100:3000/');
 const socket = io();
 
-const videoCaptureWidth = 600;
-const videoCaptureHeight = 500;
+const videoCaptureWidth = 1920;
+const videoCaptureHeight = 1080;
 
 let videoPreviewWidth, videoPreviewHeight;
 
@@ -62,8 +62,8 @@ async function setupCamera() {
   video.srcObject = stream;
 
   // setup video  preview size
-  videoPreviewWidth = 300 // screen.width / 2;
-  videoPreviewHeight = 300 * (videoCaptureHeight / videoCaptureWidth) // videoPreviewWidth * (videoCaptureHeight / videoCaptureWidth)
+  videoPreviewWidth = 550 // screen.width / 2;
+  videoPreviewHeight = videoPreviewWidth * (videoCaptureHeight / videoCaptureWidth) // videoPreviewWidth * (videoCaptureHeight / videoCaptureWidth)
 
   return new Promise((resolve) => {
     video.onloadedmetadata = () => {
