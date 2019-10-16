@@ -35,6 +35,7 @@ const stats = new Stats();
 
 let playerId, playerInViewPose, playerPose, sentBy;
 
+let isLatest = false;
 
 /**
  * Loads a the camera to be used in the demo
@@ -499,15 +500,19 @@ function detectPoseInRealTime(video, net, arucoDetector) {
 
     if (playerPose) {
       // console.log('print player pose')
-      var playerKp = fixKeypoints(playerPose, (videoPreviewWidth/videoCaptureWidth), (videoPreviewHeight/videoCaptureHeight), (canvas.width - videoPreviewWidth), 0)
+      var playerKp;
+      if(isLatest){
+        playerKp = fixKeypoints(playerPose, (videoPreviewWidth/videoCaptureWidth), (videoPreviewHeight/videoCaptureHeight), (canvas.width - videoPreviewWidth), 0)
+        isLatest = false;
+      }
       if (guiState.output.showPoints) {
-        drawKeypoints(playerKp, minPartConfidence, ctx);
+        drawKeypoints(playerPose, minPartConfidence, ctx);
       }
       if (guiState.output.showSkeleton) {
-        drawSkeleton(playerKp, minPartConfidence, ctx);
+        drawSkeleton(playerPose, minPartConfidence, ctx);
       }
       if (guiState.output.showBoundingBox) {
-        drawBoundingBox(playerKp, ctx);
+        drawBoundingBox(playerPose, ctx);
       }
     }
     // End monitoring code for frames per second
@@ -627,6 +632,7 @@ socket.on('dataframe', (data) => {
   if(data[playerId]){
     playerPose = data[playerId].keypoints;
     sentBy = data[playerId].sentBy;
+    isLatest = true;
   }
 });
 
