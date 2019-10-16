@@ -26,8 +26,8 @@ import {drawBoundingBox, drawKeypoints, drawSkeleton, isMobile, toggleLoadingUI,
 // const socket = io('https://192.168.43.100:3000/');
 const socket = io();
 
-const videoCaptureWidth = 1920;
-const videoCaptureHeight = 1080;
+const videoCaptureWidth = 600;
+const videoCaptureHeight = 500;
 
 let videoPreviewWidth, videoPreviewHeight;
 
@@ -62,7 +62,7 @@ async function setupCamera() {
   video.srcObject = stream;
 
   // setup video  preview size
-  videoPreviewWidth = 550 // screen.width / 2;
+  videoPreviewWidth = 300 // screen.width / 2;
   videoPreviewHeight = videoPreviewWidth * (videoCaptureHeight / videoCaptureWidth) // videoPreviewWidth * (videoCaptureHeight / videoCaptureWidth)
 
   return new Promise((resolve) => {
@@ -543,8 +543,8 @@ function fixMarkers(markers, Rx, Ry, padWidth=0, padHeight=0) {
   for (let i = 0; i < markers.length; i++) {
     const corners = markers[i].corners;
     for (let j = 0; j !== corners.length; ++ j){
-      corners[j].x = corners[j].x * Rx + padWidth;
-      corners[j].y = corners[j].y * Ry + padHeight;
+      corners[j].x = videoPreviewWidth - (corners[j].x * Rx + padWidth);
+      corners[j].y = (corners[j].y) * Ry + padHeight;
     }
     markers[i].corners = corners;
   }
