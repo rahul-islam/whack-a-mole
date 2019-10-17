@@ -35,6 +35,8 @@ const stats = new Stats();
 
 let playerId, playerInViewPose, playerPose, sentBy;
 
+let markers= [];
+
 let isLatest = false;
 
 /**
@@ -439,11 +441,14 @@ function detectPoseInRealTime(video, net, arucoDetector) {
 
     inMemoryCanvasCxt.drawImage(video, 0, 0);
     let imageData = inMemoryCanvasCxt.getImageData(0, 0, videoCaptureWidth, videoCaptureHeight);
-    let markers = arucoDetector.detect(imageData);
-    // console.log(markers)
+    let markers_inter = arucoDetector.detect(imageData);
+    markers = markers_inter.length > 0 ? JSON.parse(JSON.stringify(markers_inter)) : markers;
+
+    console.log(markers)
     if(markers){
       poses = couplePoseMarker(poses, markers, minPoseConfidence);
-      markers = fixMarkers(markers, (videoPreviewWidth/videoCaptureWidth), (videoPreviewHeight/videoCaptureHeight))
+      if(markers_inter.length > 0)
+        markers = fixMarkers(markers, (videoPreviewWidth/videoCaptureWidth), (videoPreviewHeight/videoCaptureHeight))
     }
     // ctx.clearRect(0, 0, 300, 300);
     ctx.fillStyle = "black";
