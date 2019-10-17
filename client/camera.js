@@ -29,7 +29,7 @@ const socket = io();
 const videoCaptureWidth = 600;
 const videoCaptureHeight = 500;
 
-let videoPreviewWidth, videoPreviewHeight;
+let videoPreviewWidth, videoPreviewHeight, playerPreviewWidth, playerPreviewHeight;
 
 const stats = new Stats();
 
@@ -65,6 +65,9 @@ async function setupCamera() {
   // setup video  preview size
   videoPreviewWidth = 300 // screen.width / 2;
   videoPreviewHeight = videoPreviewWidth * (videoCaptureHeight / videoCaptureWidth) // videoPreviewWidth * (videoCaptureHeight / videoCaptureWidth)
+
+  playerPreviewWidth = 100
+  playerPreviewHeight = playerPreviewWidth * (videoCaptureHeight / videoCaptureWidth)
 
   return new Promise((resolve) => {
     video.onloadedmetadata = () => {
@@ -449,12 +452,6 @@ function detectPoseInRealTime(video, net, arucoDetector) {
     // ctx.fillRect(20, 20, 150, 100);
     // console.log(playerId)
     // text
-    if(playerId){
-      ctx.font = "20px";
-      ctx.fillStyle = "white";
-      ctx.fillText('Device Id :> ' + playerId, videoPreviewWidth + 2, 12);
-      ctx.fillText('Pose Shared By :> ' + String(sentBy), videoPreviewWidth + 2, 24);  
-    }
 
     if (guiState.output.showVideo) {
       ctx.save();
@@ -463,8 +460,7 @@ function detectPoseInRealTime(video, net, arucoDetector) {
       ctx.drawImage(video, 0, 0, videoPreviewWidth, videoPreviewHeight);
       ctx.restore();
     }
-
-    
+   
     // For each pose (i.e. person) detected in an image, loop through the poses
     // and draw the resulting skeleton and keypoints if over certain confidence
     // scores
@@ -499,10 +495,20 @@ function detectPoseInRealTime(video, net, arucoDetector) {
     });
 
     if (playerPose) {
+
+      if(playerId){
+        ctx.font = "20px";
+        ctx.fillStyle = "black";
+        ctx.fillText('Device Id :> ' + playerId, 2, playerPreviewHeight + 12);
+        ctx.fillText('Pose Shared By :> ' + String(sentBy), 2, playerPreviewHeight + 24);  
+      }
+      
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(0, 0, playerPreviewWidth, playerPreviewHeight);
       // console.log('print player pose')
       var playerKp;
       if(isLatest){
-        playerKp = fixKeypoints(playerPose, (videoPreviewWidth/videoCaptureWidth), (videoPreviewHeight/videoCaptureHeight), (canvas.width - videoPreviewWidth), 0)
+        playerKp = fixKeypoints(playerPose, (playerPreviewWidth/videoCaptureWidth), (playerPreviewHeight/videoCaptureHeight), 0, 0)
         isLatest = false;
       }
       if (guiState.output.showPoints) {
