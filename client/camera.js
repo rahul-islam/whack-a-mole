@@ -439,12 +439,16 @@ function detectPoseInRealTime(video, net, arucoDetector) {
         break;
     }
 
-    inMemoryCanvasCxt.drawImage(video, 0, 0);
+    // inMemoryCanvasCxt.save();
+    // inMemoryCanvasCxt.scale(-1, 1);
+    // inMemoryCanvasCxt.translate(-videoCaptureWidth, 0);
+    inMemoryCanvasCxt.drawImage(video, 0, 0, videoCaptureWidth, videoCaptureHeight);
+    // inMemoryCanvasCxt.restore();
+
     let imageData = inMemoryCanvasCxt.getImageData(0, 0, videoCaptureWidth, videoCaptureHeight);
     let markers_inter = arucoDetector.detect(imageData);
     markers = markers_inter.length > 0 ? JSON.parse(JSON.stringify(markers_inter)) : markers;
 
-    console.log(markers)
     if(markers){
       poses = couplePoseMarker(poses, markers, minPoseConfidence);
       if(markers_inter.length > 0)
@@ -465,7 +469,12 @@ function detectPoseInRealTime(video, net, arucoDetector) {
       ctx.drawImage(video, 0, 0, videoPreviewWidth, videoPreviewHeight);
       ctx.restore();
     }
-   
+
+    if (guiState.output.showAruco) {
+      drawCorners(markers, ctx);
+      drawId(markers, ctx)
+    }
+
     // For each pose (i.e. person) detected in an image, loop through the poses
     // and draw the resulting skeleton and keypoints if over certain confidence
     // scores
@@ -492,24 +501,21 @@ function detectPoseInRealTime(video, net, arucoDetector) {
         if (guiState.output.showBoundingBox) {
           drawBoundingBox(keypoints, ctx);
         }
-        if (guiState.output.showAruco) {
-          drawCorners(markers, ctx);
-          drawId(markers, ctx)
-        }
       }
     });
 
     if (playerPose) {
 
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, playerPreviewWidth, playerPreviewHeight + 26);
+
       if(playerId){
         ctx.font = "20px";
-        ctx.fillStyle = "black";
+        ctx.fillStyle = "white";
         ctx.fillText('Device Id :> ' + playerId, 2, playerPreviewHeight + 12);
         ctx.fillText('Pose Shared By :> ' + String(sentBy), 2, playerPreviewHeight + 24);  
       }
-      
-      ctx.fillStyle = "#000000";
-      ctx.fillRect(0, 0, playerPreviewWidth, playerPreviewHeight);
+
       // console.log('print player pose')
       var playerKp;
       if(isLatest){
