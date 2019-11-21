@@ -39,6 +39,7 @@ let markers= [];
 
 let isLatest = false;
 
+let facingMode = ''
 /**
  * Loads a the camera to be used in the demo
  *
@@ -54,10 +55,12 @@ async function setupCamera() {
   video.height = videoCaptureHeight;
 
   const mobile = isMobile();
+  facingMode = mobile ? 'environment': 'user'
+  console.log('Camera facingMode', facingMode)
   const stream = await navigator.mediaDevices.getUserMedia({
     'audio': false,
     'video': {
-      facingMode: mobile ? 'environment': 'user',
+      facingMode: facingMode,
       width: mobile ? undefined : videoCaptureWidth,
       height: mobile ? undefined : videoCaptureHeight,
     },
@@ -324,7 +327,10 @@ function detectPoseInRealTime(video, net, arucoDetector) {
   // original image and then just flip the keypoints' x coordinates. If instead
   // we flip the image, then correcting left-right keypoint pairs requires a
   // permutation on all the keypoints.
-  const flipPoseHorizontal = true;
+  const flipPoseHorizontal = false;
+  if(facingMode == 'front'){
+    flipPoseHorizontal = true;
+  }
 
   canvas.width = videoPreviewWidth * 2; // videoCaptureWidth;
   canvas.height = videoPreviewHeight; // videoCaptureHeight;
@@ -464,8 +470,10 @@ function detectPoseInRealTime(video, net, arucoDetector) {
 
     if (guiState.output.showVideo) {
       ctx.save();
-      ctx.scale(-1, 1);
-      ctx.translate(-videoPreviewWidth, 0);
+      if(facingMode == 'front'){
+        ctx.scale(-1, 1);
+        ctx.translate(-videoPreviewWidth, 0);
+      }
       ctx.drawImage(video, 0, 0, videoPreviewWidth, videoPreviewHeight);
       ctx.restore();
     }
@@ -565,7 +573,7 @@ function fixMarkers(markers, Rx, Ry, padWidth=0, padHeight=0) {
   for (let i = 0; i < markers.length; i++) {
     const corners = markers[i].corners;
     for (let j = 0; j !== corners.length; ++ j){
-      corners[j].x = videoPreviewWidth - (corners[j].x * Rx + padWidth);
+      corners[j].x = (corners[j].x * Rx + padWidth);
       corners[j].y = (corners[j].y) * Ry + padHeight;
     }
     markers[i].corners = corners;
